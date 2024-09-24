@@ -1,3 +1,5 @@
+use adder::adder;
+
 pub fn multiplier(left: u32, right: u32) -> u32 {
 	let mut res = 0;
 	let mut multiplicand = left;
