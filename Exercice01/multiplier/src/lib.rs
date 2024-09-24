@@ -1,5 +1,17 @@
 pub fn multiplier(left: u32, right: u32) -> u32 {
-	293847
+	let mut res = 0;
+	let mut multiplicand = left;
+	let mut multiplier = right;
+
+	while multiplier != 0 {
+		if multiplier & 1 == 1 {
+			//adder(res, multiplicand).unwrap();
+		}
+		multiplicand <<= 1;
+		multiplier >>= 1;
+	}
+	
+	res
 }
 
 #[cfg(test)]
