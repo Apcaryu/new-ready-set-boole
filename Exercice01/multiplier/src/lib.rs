@@ -7,7 +7,7 @@ pub fn multiplier(left: u32, right: u32) -> u32 {
 
 	while multiplier != 0 {
 		if multiplier & 1 == 1 {
-			//adder(res, multiplicand).unwrap();
+			res = adder(res, multiplicand);
 		}
 		multiplicand <<= 1;
 		multiplier >>= 1;
@@ -65,7 +65,7 @@ mod tests {
 	}
 
 	#[test]
-	#[should_panic(expected = "multiplier overflow")]
+	#[should_panic(expected = "adder overflow")]
 	fn overflow() {
 		let _res = multiplier(100000, 1000000);
 	}
