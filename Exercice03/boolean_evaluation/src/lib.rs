@@ -44,8 +44,28 @@ impl Nbstack {
 
 pub fn eval_formula(formula: &str) -> bool {
 	let mut stack= Nbstack::new();
+	
+	for chr in formula.chars(){
+		match chr {
+			'0' => {
+				stack.add_number(chr);
+			},
+			'1' => {
+				stack.add_number(chr);
+			},
+			'!' => {},
+			'&' => {},
+			'|' => {},
+			'^' => {},
+			'>' => {},
+			'=' => {},
+			_ => {
+				panic!("invalid input");
+			}
+		}
+	}
 
-	false
+	stack.nb_list & 1 == 1 
 }
 
 #[cfg(test)]
