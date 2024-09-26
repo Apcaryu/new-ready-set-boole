@@ -64,6 +64,11 @@ fn xor_operator(stack: &mut Nbstack) {
 	stack.add_number(a ^ b);
 }
 
+fn material_condition_operator(stack: &mut Nbstack) {
+	let (a, b) = (stack.extract_number(), stack.extract_number());
+	println!("a = {} | b = {}", a, b);
+	stack.add_number((a ^ 1) | b);
+}
 pub fn eval_formula(formula: &str) -> bool {
 	let mut stack= Nbstack::new();
 	
@@ -87,7 +92,9 @@ pub fn eval_formula(formula: &str) -> bool {
 			'^' => {
 				xor_operator(&mut stack);
 			},
-			'>' => {},
+			'>' => {
+				material_condition_operator(&mut stack);
+			},
 			'=' => {},
 			_ => {
 				panic!("invalid input");
@@ -185,8 +192,8 @@ mod tests {
 	#[test]
 	fn material_condition_test() {
 		assert_eq!(eval_formula("00>"), true);
-		assert_eq!(eval_formula("10>"), false);
-		assert_eq!(eval_formula("01>"), true);
+		assert_eq!(eval_formula("10>"), true);
+		assert_eq!(eval_formula("01>"), false);
 		assert_eq!(eval_formula("11>"), true);
 	}
 
