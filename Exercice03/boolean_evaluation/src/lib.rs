@@ -42,6 +42,13 @@ impl Nbstack {
 	}
 }
 
+fn negation(stack: &mut Nbstack) {
+	let mut tmp = stack.extract_number();
+
+	tmp = tmp ^ 1;
+	stack.add_number(tmp);	
+}
+
 pub fn eval_formula(formula: &str) -> bool {
 	let mut stack= Nbstack::new();
 	
@@ -53,7 +60,9 @@ pub fn eval_formula(formula: &str) -> bool {
 			'1' => {
 				stack.add_number(1);
 			},
-			'!' => {},
+			'!' => {
+				negation(&mut stack);
+			},
 			'&' => {},
 			'|' => {},
 			'^' => {},
@@ -124,8 +133,8 @@ mod tests {
 
 	#[test]
 	fn negation_test() {
-		assert_eq!(eval_formula("!0"), true);
-		assert_eq!(eval_formula("!1"), false);
+		assert_eq!(eval_formula("0!"), true);
+		assert_eq!(eval_formula("1!"), false);
 	}
 
     #[test]
