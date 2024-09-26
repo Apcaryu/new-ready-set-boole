@@ -69,6 +69,12 @@ fn material_condition_operator(stack: &mut Nbstack) {
 	println!("a = {} | b = {}", a, b);
 	stack.add_number((a ^ 1) | b);
 }
+
+fn logical_equivalence_operator(stack: &mut Nbstack) {
+	let (a, b) = (stack.extract_number(), stack.extract_number());
+	stack.add_number((a ^ b) ^ 1);
+}
+
 pub fn eval_formula(formula: &str) -> bool {
 	let mut stack= Nbstack::new();
 	
@@ -95,7 +101,9 @@ pub fn eval_formula(formula: &str) -> bool {
 			'>' => {
 				material_condition_operator(&mut stack);
 			},
-			'=' => {},
+			'=' => {
+				logical_equivalence_operator(&mut stack);
+			},
 			_ => {
 				panic!("invalid input");
 			}
