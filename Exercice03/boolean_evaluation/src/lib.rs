@@ -54,6 +54,11 @@ fn and_operator(stack: &mut Nbstack) {
 	stack.add_number(a & b);
 }
 
+fn or_operator(stack: &mut Nbstack) {
+	let (a, b) = (stack.extract_number(), stack.extract_number());
+	stack.add_number(a | b);
+}
+
 pub fn eval_formula(formula: &str) -> bool {
 	let mut stack= Nbstack::new();
 	
@@ -71,7 +76,9 @@ pub fn eval_formula(formula: &str) -> bool {
 			'&' => {
 				and_operator(&mut stack);
 			},
-			'|' => {},
+			'|' => {
+				or_operator(&mut stack);
+			},
 			'^' => {},
 			'>' => {},
 			'=' => {},
