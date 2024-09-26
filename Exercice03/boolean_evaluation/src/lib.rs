@@ -110,7 +110,13 @@ pub fn eval_formula(formula: &str) -> bool {
 		}
 	}
 
-	stack.nb_list & 1 == 1 
+	if stack.counter == 1 {
+		stack.nb_list & 1 == 1 
+	} else if stack.counter == 0 {
+		panic!("missing input");
+	} else {
+		panic!("not enought operator")
+	}
 }
 
 #[cfg(test)]
@@ -230,5 +236,23 @@ mod tests {
 		assert_eq!(eval_formula("11>"), true);
 		assert_eq!(eval_formula("10="), false);
 		assert_eq!(eval_formula("1011||="), true);
+	}
+
+	#[test]
+	#[should_panic(expected = "missing input")]
+	fn empty_input() {
+		eval_formula("");
+	}
+
+	#[test]
+	#[should_panic(expected = "stack of number is empty")]
+	fn not_enought_number() {
+		eval_formula("1|");
+	}
+
+	#[test]
+	#[should_panic(expected = "not enought operator")]
+	fn not_enought_operator() {
+		eval_formula("101&");
 	}
 }
