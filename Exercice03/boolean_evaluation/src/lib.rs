@@ -59,6 +59,11 @@ fn or_operator(stack: &mut Nbstack) {
 	stack.add_number(a | b);
 }
 
+fn xor_operator(stack: &mut Nbstack) {
+	let (a, b) = (stack.extract_number(), stack.extract_number());
+	stack.add_number(a ^ b);
+}
+
 pub fn eval_formula(formula: &str) -> bool {
 	let mut stack= Nbstack::new();
 	
@@ -79,7 +84,9 @@ pub fn eval_formula(formula: &str) -> bool {
 			'|' => {
 				or_operator(&mut stack);
 			},
-			'^' => {},
+			'^' => {
+				xor_operator(&mut stack);
+			},
 			'>' => {},
 			'=' => {},
 			_ => {
@@ -169,10 +176,10 @@ mod tests {
 
 	#[test]
 	fn xor_test() {
-		assert_eq!(eval_formula("00ˆ"), false);
-		assert_eq!(eval_formula("10ˆ"), true);
-		assert_eq!(eval_formula("01ˆ"), true);
-		assert_eq!(eval_formula("11ˆ"), false);
+		assert_eq!(eval_formula("00^"), false);
+		assert_eq!(eval_formula("10^"), true);
+		assert_eq!(eval_formula("01^"), true);
+		assert_eq!(eval_formula("11^"), false);
 	}
 
 	#[test]
@@ -198,7 +205,7 @@ mod tests {
 	}
 	#[test]
 	fn big_test() {
-		assert_eq!(eval_formula("0!00101&|ˆ>="), false);
+		assert_eq!(eval_formula("0!00101&|^>="), false);
 	}
 
 	#[test]
