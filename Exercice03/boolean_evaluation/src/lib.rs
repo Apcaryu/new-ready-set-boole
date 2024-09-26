@@ -9,31 +9,31 @@ impl Nbstack {
 		Nbstack { nb_list: 0, counter: 0 }
 	}
 
-	fn add_number(&mut self, chr: char) {
+	fn add_number(&mut self, val: u64) {
 		if self.counter == 64 {
 			panic!("buffer limit reached")
 		}
-		match chr {
-			'0' => { 
+		match val {
+			0 => { 
 				self.nb_list = self.nb_list << 1;
 				self.counter += 1;
 			},
-			'1' => {
+			1 => {
 				self.nb_list = (self.nb_list << 1) | 1;
 				self.counter += 1; 
 			},
 			_ => {
-				panic!("chr input is not a '0' or a '1', chr = {}", chr);
+				panic!("val input is not a '0' or a '1', val = {}", val);
 			},
 		}
 	}
 
-	fn extract_number(&mut self) -> bool {
+	fn extract_number(&mut self) -> u64 {
 		if self.counter == 0 {
 			panic!("stack of number is empty");
 		}
 
-		let res = self.nb_list & 1 == 1;
+		let res = self.nb_list & 1;
 		
 		self.nb_list >>= 1;
 		self.counter -= 1;
@@ -48,10 +48,10 @@ pub fn eval_formula(formula: &str) -> bool {
 	for chr in formula.chars(){
 		match chr {
 			'0' => {
-				stack.add_number(chr);
+				stack.add_number(0);
 			},
 			'1' => {
-				stack.add_number(chr);
+				stack.add_number(1);
 			},
 			'!' => {},
 			'&' => {},
@@ -75,17 +75,17 @@ mod tests {
 	#[test]
 	fn add_number_test() {
 		let mut res = Nbstack::new();
-		res.add_number('1');
+		res.add_number(1);
 		assert_eq!(res, Nbstack{ nb_list: 1, counter: 1});
-		res.add_number('0');
+		res.add_number(0);
 		assert_eq!(res, Nbstack{ nb_list: 2, counter: 2});
 	}
 
 	#[test]
-	#[should_panic(expected = "chr input is not a '0' or a '1', chr = @")]
-	fn add_number_panic_test() {
-		let mut res = Nbstack::new();
-		res.add_number('@');
+	#[should_panic(expected = "val input is not a '0' or a '1', val = 2")]
+	fn add_number_invalid_input() {
+		let mut test = Nbstack::new();
+		test.add_number(2);
 	}
 
 	#[test]
@@ -93,7 +93,7 @@ mod tests {
 	fn add_number_buffer_limit_test() {
 		let mut res = Nbstack::new();
 		for _ in 0..=64 {
-			res.add_number('0');
+			res.add_number(0);
 		}
 
 	}
@@ -101,8 +101,8 @@ mod tests {
 	#[test]
 	fn extract_number_test() {
 		let mut res = Nbstack{ nb_list: 2, counter: 2};
-		assert_eq!(res.extract_number(), false);
-		assert_eq!(res.extract_number(), true);
+		assert_eq!(res.extract_number(), 0);
+		assert_eq!(res.extract_number(), 1);
 	}
 
 	#[test]
