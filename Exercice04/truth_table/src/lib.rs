@@ -1,5 +1,7 @@
+use boolean_evaluation::eval_formula;
+
 pub fn print_truth_table(formula: &str) {
-    return;
+    println!("{}", eval_formula("0!") as u8);
 }
 
 #[cfg(test)]
