@@ -1,8 +1,6 @@
-use std::env::var;
-
 use boolean_evaluation::eval_formula;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Variable {
 	name: char,
 	all_value: Vec<char>
@@ -59,7 +57,43 @@ fn gen_one_variable(name: char, nb_value: u16, tmp_pow: u32) -> Variable {
 	out
 }
 
-fn table_value_generation(vars_tab: Vec<char>) -> Vec<Variable> {
+fn find_variable_in_vector(vec: &Vec<Variable>, target: char) -> Variable {
+	for var in vec.iter() {
+		if var.name == target {
+			return var.clone();
+		}
+	}
+
+	Variable::new('?')
+}
+
+fn calculate_all(formula: &str, mut tab: Vec<Variable>, nb_vars: u8) -> Vec<Variable> {
+	let mut res = Variable::new('=');
+	println!("{}", nb_vars);
+	
+	for idx  in 0..2u16.pow(nb_vars as u32) {
+		let mut tmp_formula = String::new();
+		for chr in formula.chars() {
+			if chr.is_ascii_uppercase() {
+				tmp_formula.push(find_variable_in_vector(&tab, chr).all_value[idx as usize])
+			} else {
+				tmp_formula.push(chr);
+			}
+		}
+
+		if eval_formula(tmp_formula.as_str()) {
+			res.all_value.push('1');
+		} else {
+			res.all_value.push('0');
+		}
+	}
+
+	tab.push(res);
+
+	tab
+}
+
+fn table_value_generation(vars_tab: Vec<char>, formula: &str) -> Vec<Variable> {
 	let mut out = Vec::new();
 	let mut nb_vars = vars_tab.len();
 	let mut cptr = 0;
@@ -73,14 +107,16 @@ fn table_value_generation(vars_tab: Vec<char>) -> Vec<Variable> {
 		cptr += 1;
 	}
 
-	out
+	calculate_all(formula, out, vars_tab.len() as u8)
+
+	// out
 }
 
 pub fn print_truth_table(formula: &str) {
 	if formula.len() == 0 { panic!("need an input") }
 	let vars_tab = get_variables(formula);
 	// println!("vars : {:?}", get_variables(formula));
-	let tab = table_value_generation(vars_tab);
+	let tab = table_value_generation(vars_tab, formula);
 	println!("{:?}", tab);
     // println!("{}", eval_formula("0!") as u8);
 }
