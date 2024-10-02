@@ -66,7 +66,6 @@ fn xor_operator(stack: &mut Nbstack) {
 
 fn material_condition_operator(stack: &mut Nbstack) {
 	let (a, b) = (stack.extract_number(), stack.extract_number());
-	println!("a = {} | b = {}", a, b);
 	stack.add_number((a ^ 1) | b);
 }
 
