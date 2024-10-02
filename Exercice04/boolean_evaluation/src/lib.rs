@@ -50,27 +50,27 @@ fn negation(stack: &mut Nbstack) {
 }
 
 fn and_operator(stack: &mut Nbstack) {
-	let (a, b) = (stack.extract_number(), stack.extract_number());
+	let (b, a) = (stack.extract_number(), stack.extract_number());
 	stack.add_number(a & b);
 }
 
 fn or_operator(stack: &mut Nbstack) {
-	let (a, b) = (stack.extract_number(), stack.extract_number());
+	let (b, a) = (stack.extract_number(), stack.extract_number());
 	stack.add_number(a | b);
 }
 
 fn xor_operator(stack: &mut Nbstack) {
-	let (a, b) = (stack.extract_number(), stack.extract_number());
+	let (b, a) = (stack.extract_number(), stack.extract_number());
 	stack.add_number(a ^ b);
 }
 
 fn material_condition_operator(stack: &mut Nbstack) {
-	let (a, b) = (stack.extract_number(), stack.extract_number());
+	let (b, a) = (stack.extract_number(), stack.extract_number());
 	stack.add_number((a ^ 1) | b);
 }
 
 fn logical_equivalence_operator(stack: &mut Nbstack) {
-	let (a, b) = (stack.extract_number(), stack.extract_number());
+	let (b, a) = (stack.extract_number(), stack.extract_number());
 	stack.add_number((a ^ b) ^ 1);
 }
 
@@ -181,40 +181,40 @@ mod tests {
     #[test]
     fn and_test() {
         assert_eq!(eval_formula("00&"), false);
-        assert_eq!(eval_formula("10&"), false);
         assert_eq!(eval_formula("01&"), false);
+        assert_eq!(eval_formula("10&"), false);
         assert_eq!(eval_formula("11&"), true);
     }
 
 	#[test]
 	fn or_test() {
 		assert_eq!(eval_formula("00|"), false);
-		assert_eq!(eval_formula("10|"), true);
 		assert_eq!(eval_formula("01|"), true);
+		assert_eq!(eval_formula("10|"), true);
 		assert_eq!(eval_formula("11|"), true);
 	}
 
 	#[test]
 	fn xor_test() {
 		assert_eq!(eval_formula("00^"), false);
-		assert_eq!(eval_formula("10^"), true);
 		assert_eq!(eval_formula("01^"), true);
+		assert_eq!(eval_formula("10^"), true);
 		assert_eq!(eval_formula("11^"), false);
 	}
 
 	#[test]
 	fn material_condition_test() {
 		assert_eq!(eval_formula("00>"), true);
-		assert_eq!(eval_formula("10>"), true);
-		assert_eq!(eval_formula("01>"), false);
+		assert_eq!(eval_formula("01>"), true);
+		assert_eq!(eval_formula("10>"), false);
 		assert_eq!(eval_formula("11>"), true);
 	}
 
 	#[test]
 	fn logical_equivalence() {
 		assert_eq!(eval_formula("00="), true);
-		assert_eq!(eval_formula("10="), false);
 		assert_eq!(eval_formula("01="), false);
+		assert_eq!(eval_formula("10="), false);
 		assert_eq!(eval_formula("11="), true);
 	}
 
@@ -225,7 +225,7 @@ mod tests {
 	}
 	#[test]
 	fn big_test() {
-		assert_eq!(eval_formula("0!00101&|^>="), false);
+		assert_eq!(eval_formula("0!00101&|^>="), true);
 	}
 
 	#[test]
