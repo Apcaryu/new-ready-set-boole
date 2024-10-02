@@ -1,4 +1,18 @@
+use std::env::var;
+
 use boolean_evaluation::eval_formula;
+
+#[derive(Debug)]
+struct Variable {
+	name: char,
+	all_value: Vec<char>
+}
+
+impl Variable {
+	pub fn new(name: char) -> Variable {
+		Variable { name, all_value: Vec::new() }
+	}
+}
 
 fn search_value(tab: &Vec<char>, target: char) -> bool {
 	for iter in tab.iter() {
@@ -25,11 +39,50 @@ fn get_variables(formula: &str) -> Vec<char> {
 	out
 }
 
+fn gen_one_variable(name: char, nb_value: u16, tmp_pow: u32) -> Variable {
+	let mut out = Variable::new(name);
+	let mut cptr = 0;
+
+	for _ in 0..nb_value {
+		if cptr < tmp_pow / 2 {
+			out.all_value.push('0');
+			cptr += 1;
+		} else {
+			out.all_value.push('1');
+			cptr += 1;
+			if cptr == tmp_pow {
+				cptr = 0;
+			}
+		}
+	}
+
+	out
+}
+
+fn table_value_generation(vars_tab: Vec<char>) -> Vec<Variable> {
+	let mut out = Vec::new();
+	let mut nb_vars = vars_tab.len();
+	let mut cptr = 0;
+	// println!("{:?}", vars_tab);
+	// println!("{:?}", vars_tab[0]);
+	while nb_vars > 0 {
+		let tmp_pow = 2u32.pow(nb_vars as u32);
+		out.push(gen_one_variable(vars_tab[cptr], 2u16.pow(vars_tab.len() as u32), tmp_pow));
+
+		nb_vars -= 1;
+		cptr += 1;
+	}
+
+	out
+}
+
 pub fn print_truth_table(formula: &str) {
 	if formula.len() == 0 { panic!("need an input") }
 	let vars_tab = get_variables(formula);
 	// println!("vars : {:?}", get_variables(formula));
-    println!("{}", eval_formula("0!") as u8);
+	let tab = table_value_generation(vars_tab);
+	println!("{:?}", tab);
+    // println!("{}", eval_formula("0!") as u8);
 }
 
 #[cfg(test)]
