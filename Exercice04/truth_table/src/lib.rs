@@ -10,6 +10,10 @@ impl Variable {
 	pub fn new(name: char) -> Variable {
 		Variable { name, all_value: Vec::new() }
 	}
+
+	fn get_value(&self, idx: usize) -> char {
+		self.all_value[idx]
+	}
 }
 
 fn search_value(tab: &Vec<char>, target: char) -> bool {
@@ -69,7 +73,7 @@ fn find_variable_in_vector(vec: &Vec<Variable>, target: char) -> Variable {
 
 fn calculate_all(formula: &str, mut tab: Vec<Variable>, nb_vars: u8) -> Vec<Variable> {
 	let mut res = Variable::new('=');
-	println!("{}", nb_vars);
+	// println!("{}", nb_vars);
 	
 	for idx  in 0..2u16.pow(nb_vars as u32) {
 		let mut tmp_formula = String::new();
@@ -93,7 +97,7 @@ fn calculate_all(formula: &str, mut tab: Vec<Variable>, nb_vars: u8) -> Vec<Vari
 	tab
 }
 
-fn table_value_generation(vars_tab: Vec<char>, formula: &str) -> Vec<Variable> {
+fn table_value_generation(vars_tab: &Vec<char>, formula: &str) -> Vec<Variable> {
 	let mut out = Vec::new();
 	let mut nb_vars = vars_tab.len();
 	let mut cptr = 0;
@@ -112,13 +116,70 @@ fn table_value_generation(vars_tab: Vec<char>, formula: &str) -> Vec<Variable> {
 	// out
 }
 
+fn gen_var_line_string(vars_tab: &Vec<char>) -> String {
+	let mut out = String::new();
+
+	for chr in vars_tab.iter() {
+		out.push_str(&format!("| {} ", chr));
+	}
+
+	out.push_str(&format!("|\n"));
+	out
+}
+
+fn gen_special_line_string(nb_vars: u8) -> String {
+	let mut out = String::new();
+
+	for _ in 0..nb_vars {
+		out.push_str("|---");
+	}
+	out.push_str("|\n");
+
+	out
+}
+
+fn gen_one_line_string(vars_tab: &Vec<char>, idx: u16, tab: &Vec<Variable>) -> String {
+	let mut out = String::new();
+
+	for var_name in vars_tab.iter() {
+		// println!("{}", var_name);
+		let value = find_variable_in_vector(tab, *var_name).get_value(idx as usize);
+		out.push_str(&format!("| {} ", value));
+	}
+
+	out.push_str(&format!("|\n"));
+	out
+}
+
+fn gen_tab_string(vars_tab: &Vec<char>, nb_value: u16, tab: Vec<Variable>) -> String {
+	let mut out = String::new();
+	let nb_vars = vars_tab.len() as u8;
+
+	out.push_str(&gen_var_line_string(vars_tab));
+	out.push_str(&gen_special_line_string(nb_vars));
+	for idx in 0..nb_value {
+		// println!("{}", nb_value);
+		out.push_str(&gen_one_line_string(vars_tab, idx, &tab));
+	}
+	out
+}
+
+fn print_table(mut vars_tab: Vec<char>, tab: Vec<Variable>) {
+	let nb_values = 2u16.pow(vars_tab.len() as u32);
+	vars_tab.push('=');
+
+	print!("{}", gen_tab_string(&vars_tab, nb_values, tab));
+
+}
+
 pub fn print_truth_table(formula: &str) {
 	if formula.len() == 0 { panic!("need an input") }
 	let vars_tab = get_variables(formula);
 	// println!("vars : {:?}", get_variables(formula));
-	let tab = table_value_generation(vars_tab, formula);
-	println!("{:?}", tab);
+	let tab = table_value_generation(&vars_tab, formula);
+	// println!("{:?}", tab);
     // println!("{}", eval_formula("0!") as u8);
+	print_table(vars_tab, tab);
 }
 
 #[cfg(test)]
