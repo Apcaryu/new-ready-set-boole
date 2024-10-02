@@ -1,6 +1,34 @@
 use boolean_evaluation::eval_formula;
 
+fn search_value(tab: &Vec<char>, target: char) -> bool {
+	for iter in tab.iter() {
+		if *iter == target {
+			return true
+		}
+	}
+	false
+}
+
+fn get_variables(formula: &str) -> Vec<char> {
+	let mut out = Vec::new();
+
+	for chr in formula.chars() {
+		match chr {
+			'A'..='Z' => {
+				if !search_value(&out, chr) {
+					out.push(chr);
+				}
+			}
+			_ => {}
+		}
+	}
+	out
+}
+
 pub fn print_truth_table(formula: &str) {
+	if formula.len() == 0 { panic!("need an input") }
+	let vars_tab = get_variables(formula);
+	// println!("vars : {:?}", get_variables(formula));
     println!("{}", eval_formula("0!") as u8);
 }
 
@@ -9,7 +37,7 @@ mod tests {
     use super::*;
 
     #[test]
-	#[should_panic(expected = "Need an input")]
+	#[should_panic(expected = "need an input")]
     fn no_input() {
 		print_truth_table("");
 	}
