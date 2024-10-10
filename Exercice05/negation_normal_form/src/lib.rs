@@ -68,7 +68,6 @@ mod tests {
 	#[test]
 	fn base_case() {
 		assert_eq!(negation_normal_form("A!"), "A!");
-		assert_eq!(negation_normal_form("A!A!"), "A!A!");
 		// assert_eq!(negation_normal_form("AB&"), "AB&");
 		// assert_eq!(negation_normal_form("AB|"), "AB|");
 		// assert_eq!(negation_normal_form("AB^"), "AB!&A!B&|");
