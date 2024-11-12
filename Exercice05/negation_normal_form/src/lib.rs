@@ -1,50 +1,39 @@
 // fn get_a_b(){}
 
-fn get_a(formula: &str, index: &mut usize) -> String {
-	let chr = formula.as_bytes()[*index - 1] as char;
+fn negation(stack: &mut Vec<String>) {
+	if stack.len() == 0 {
+		panic!("missing variable");
+	}
 
-	println!("idx = {}", index);
-	match chr {
-		'A'..='Z' => {
-			*index -= 1;
-			return String::from(format!("{}", chr))
+	let tmp = stack.pop();
+	let mut res = String::new();
+
+	match tmp {
+		Some(val) => {
+			if val.chars().last() != Some('!') {
+				res = String::from(format!("{}!", val));
+			} else {
+				let mut tmp_res = val.chars();
+				tmp_res.next_back();
+				res = String::from(tmp_res.as_str())
+			}
 		},
-		'!' => {
-			*index -= 1;
-			format!("{}!", get_a(formula, index))
-		}
-		_ => {
-			panic!("invalid input");
-		}
+		_ => {}
 	}
-}
 
-fn negation(formula: &str, index: &mut usize) -> String {
-	let mut a = get_a(formula, index);
-	println!("a = {}", a);
-	if a.chars().last() == Some('!') {
-		a.pop();
-		return a
-	} else {
-		a.push('!');
-		return a
-	}
+	stack.push(res);
 }
 
 pub fn negation_normal_form(formula: &str) -> String {
-	let mut nnf_formula = String::new();
-	let mut idx = formula.len();
-	// println!("idx start = {}", idx);
+	let mut stack = Vec::new();
 
-	while idx > 0 {
-		let chr = formula.as_bytes()[idx - 1] as char;
-		// println!("chr = {}", chr);
+	for chr in formula.chars() {
 		match chr {
+			'A'..='Z' => {
+				stack.push(String::from(chr));
+			},
 			'!' => {
-				idx -= 1;
-				let tmp = negation(formula, &mut idx);
-				println!("tmp = {}", tmp);
-				nnf_formula.insert_str(0,tmp.clone().as_str());
+				negation(&mut stack);
 			},
 			'&' => {},
 			'|' => {},
@@ -55,10 +44,15 @@ pub fn negation_normal_form(formula: &str) -> String {
 				panic!("invalid input")
 			}
 		}
-		if idx != 0 {idx -= 1}
 	}
-	
-	nnf_formula
+
+	match stack.pop() {
+		Some(val) => return val,
+		_ => {
+			panic!("Stack is empty")
+		},
+	}
+
 }
 
 #[cfg(test)]
