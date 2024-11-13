@@ -46,6 +46,17 @@ fn disjunction(stack: &mut Vec<String>) {
 	stack.push(String::from(format!("{}{}|", var_a, var_b)));
 }
 
+fn exclusive_disjunction(stack: &mut Vec<String>) {
+	if stack.len() < 2 {
+		panic!("missing variable")
+	}
+
+	let var_b = stack.pop().unwrap();
+	let var_a = stack.pop().unwrap();
+
+	stack.push(String::from(format!("{}{}!&{}!{}&|", var_a, var_b, var_a, var_b)));
+}
+
 pub fn negation_normal_form(formula: &str) -> String {
 	let mut stack = Vec::new();
 
@@ -63,7 +74,9 @@ pub fn negation_normal_form(formula: &str) -> String {
 			'|' => {
 				disjunction(&mut stack);
 			},
-			'^' => {},
+			'^' => {
+				exclusive_disjunction(&mut stack);
+			},
 			'>' => {},
 			'=' => {},
 			_ => {
@@ -90,7 +103,7 @@ mod tests {
 		assert_eq!(negation_normal_form("A!"), "A!");
 		assert_eq!(negation_normal_form("AB&"), "AB&");
 		assert_eq!(negation_normal_form("AB|"), "AB|");
-		// assert_eq!(negation_normal_form("AB^"), "AB!&A!B&|");
+		assert_eq!(negation_normal_form("AB^"), "AB!&A!B&|");
 		// assert_eq!(negation_normal_form("AB>"), "A!B|");
 		// assert_eq!(negation_normal_form("AB="), "AB&A!B!&|");
 	}
