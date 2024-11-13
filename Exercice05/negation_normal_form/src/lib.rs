@@ -53,7 +53,7 @@ pub fn negation_normal_form(formula: &str) -> String {
 			'^' => {},
 			'>' => {},
 			'=' => {},
-			_ => {value
+			_ => {
 				panic!("invalid input")
 			}
 		}
