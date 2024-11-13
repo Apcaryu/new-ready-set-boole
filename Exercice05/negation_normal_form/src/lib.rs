@@ -68,6 +68,17 @@ fn material_condition(stack: &mut Vec<String>) {
 	stack.push(String::from(format!("{}!{}|", var_a, var_b)));
 }
 
+fn logical_equivalence(stack: &mut Vec<String>) {
+	if stack.len() < 2 {
+		panic!("missing variable")
+	}
+
+	let var_b = stack.pop().unwrap();
+	let var_a = stack.pop().unwrap();
+
+	stack.push(String::from(format!("{}{}&{}!{}!&|", var_a, var_b, var_a, var_b)));
+}
+
 pub fn negation_normal_form(formula: &str) -> String {
 	let mut stack = Vec::new();
 
@@ -91,7 +102,9 @@ pub fn negation_normal_form(formula: &str) -> String {
 			'>' => {
 				material_condition(&mut stack);
 			},
-			'=' => {},
+			'=' => {
+				logical_equivalence(&mut stack);
+			},
 			_ => {
 				panic!("invalid input")
 			}
@@ -118,7 +131,7 @@ mod tests {
 		assert_eq!(negation_normal_form("AB|"), "AB|");
 		assert_eq!(negation_normal_form("AB^"), "AB!&A!B&|");
 		assert_eq!(negation_normal_form("AB>"), "A!B|");
-		// assert_eq!(negation_normal_form("AB="), "AB&A!B!&|");
+		assert_eq!(negation_normal_form("AB="), "AB&A!B!&|");
 	}
 	// */
 	#[test]
@@ -135,14 +148,14 @@ mod tests {
 		// assert_eq!(negation_normal_form("AB&!C|!"),"AB&C!&");
 	}
 	*/
-	/*	
+
 	#[test]
 	fn already_in_nnf() {
-		// assert_eq!(negation_normal_form("AB!&A!B&|"), "AB!&A!B&|");
-		// assert_eq!(negation_normal_form("A!B|"), "A!B|");
-		// assert_eq!(negation_normal_form("AB&A!B!&|"), "AB&A!B!&|");
+		assert_eq!(negation_normal_form("AB!&A!B&|"), "AB!&A!B&|");
+		assert_eq!(negation_normal_form("A!B|"), "A!B|");
+		assert_eq!(negation_normal_form("AB&A!B!&|"), "AB&A!B!&|");
 	}
-*/
+
 	/*
 	#[test]
 	#[should_panic(expected = "invalid input")]
