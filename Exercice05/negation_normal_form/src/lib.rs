@@ -24,6 +24,17 @@ fn negation(stack: &mut Vec<String>) {
 	stack.push(res);
 }
 
+fn conjunction(stack: &mut Vec<String>) {
+	if stack.len() < 2 {
+		panic!("missing variable")
+	}
+
+	let var_b = stack.pop().unwrap();
+	let var_a = stack.pop().unwrap();
+
+	stack.push(String::from(format!("{}{}&", var_a, var_b)));
+}
+
 pub fn negation_normal_form(formula: &str) -> String {
 	let mut stack = Vec::new();
 
@@ -35,12 +46,14 @@ pub fn negation_normal_form(formula: &str) -> String {
 			'!' => {
 				negation(&mut stack);
 			},
-			'&' => {},
+			'&' => {
+				conjunction(&mut stack);
+			},
 			'|' => {},
 			'^' => {},
 			'>' => {},
 			'=' => {},
-			_ => {
+			_ => {value
 				panic!("invalid input")
 			}
 		}
@@ -62,7 +75,7 @@ mod tests {
 	#[test]
 	fn base_case() {
 		assert_eq!(negation_normal_form("A!"), "A!");
-		// assert_eq!(negation_normal_form("AB&"), "AB&");
+		assert_eq!(negation_normal_form("AB&"), "AB&");
 		// assert_eq!(negation_normal_form("AB|"), "AB|");
 		// assert_eq!(negation_normal_form("AB^"), "AB!&A!B&|");
 		// assert_eq!(negation_normal_form("AB>"), "A!B|");
