@@ -11,13 +11,13 @@ enum Symbol {
 fn negation(var_a: String) -> String {
 	let res;
 
-			if var_a.chars().last() != Some('!') {
-				res = String::from(format!("{}!", var_a));
-			} else {
-				let mut tmp_res = var_a.chars();
-				tmp_res.next_back();
-				res = String::from(tmp_res.as_str())
-			}
+	if var_a.chars().last() != Some('!') {
+		res = String::from(format!("{}!", var_a));
+	} else {
+		let mut tmp_res = var_a.chars();
+		tmp_res.next_back();
+		res = String::from(tmp_res.as_str())
+	}
 
 	res
 }
@@ -31,15 +31,20 @@ fn disjunction(var_a: String, var_b: String) -> String {
 }
 
 fn exclusive_disjunction(var_a: String, var_b: String) -> String {
-	format!("{}{}!&{}!{}&|", var_a, var_b, var_a, var_b)
+	let n_var_a = negation(var_a.clone());
+	let n_var_b = negation(var_b.clone());
+	format!("{}{}&{}{}&|", var_a, n_var_b, n_var_a, var_b)
 }
 
 fn material_condition(var_a: String, var_b: String) -> String {
-	format!("{}!{}|", var_a, var_b)
+	let n_var_a = negation(var_a);
+	format!("{}{}|", n_var_a, var_b)
 }
 
 fn logical_equivalence(var_a: String, var_b: String) -> String {
-	format!("{}{}&{}!{}!&|", var_a, var_b, var_a, var_b)
+	let n_var_a = negation(var_a.clone());
+	let n_var_b = negation(var_b.clone());
+	format!("{}{}&{}{}&|", var_a, var_b, n_var_a, n_var_b)
 }
 
 fn nnf_for_one_symbol(symbol:Symbol, stack: &mut Vec<String>) {
@@ -134,6 +139,15 @@ mod tests {
 	#[test]
 	fn mid_case() {
 		assert_eq!(negation_normal_form("A!!"), "A");
+		assert_eq!(negation_normal_form("A!B^"), "A!B!&AB&|");
+		assert_eq!(negation_normal_form("AB!^"), "AB&A!B!&|");
+		assert_eq!(negation_normal_form("A!B!^"), "A!B&AB!&|");
+		assert_eq!(negation_normal_form("A!B>"), "AB|");
+		assert_eq!(negation_normal_form("AB!>"), "A!B!|");
+		assert_eq!(negation_normal_form("A!B!>"), "AB!|");
+		assert_eq!(negation_normal_form("A!B="), "A!B&AB!&|");
+		assert_eq!(negation_normal_form("AB!="), "AB!&A!B&|");
+		assert_eq!(negation_normal_form("A!B!="), "A!B!&AB&|");
 		// assert_eq!(negation_normal_form("AB&!"), "A!B!|");
 		// assert_eq!(negation_normal_form("AB|!"), "A!B!&");
 	}
