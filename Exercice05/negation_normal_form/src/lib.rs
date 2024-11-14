@@ -8,15 +8,71 @@ enum Symbol {
 	LogicalEquivalence,
 }
 
+fn separator(formula: String) -> (String, String) {
+	let mut var_a = String::new();
+	let mut var_b = String::new();
+	let mut stack: Vec<String>;
+
+	for chr in formula.chars() {
+		match chr {
+			'A'..='Z' => {},
+			'&' => {},
+			_ => {
+				panic!("invalid input");
+			}
+		}
+	}
+
+
+	(var_a, var_b)
+}
+
 fn negation(var_a: String) -> String {
 	let res;
 
-	if var_a.chars().last() != Some('!') {
-		res = String::from(format!("{}!", var_a));
-	} else {
-		let mut tmp_res = var_a.chars();
-		tmp_res.next_back();
-		res = String::from(tmp_res.as_str())
+	// if var_a.chars().last() != Some('!') {
+	// 	res = String::from(format!("{}!", var_a));
+	// } else {
+	// 	let mut tmp_res = var_a.chars();
+	// 	tmp_res.next_back();
+	// 	res = String::from(tmp_res.as_str())
+	// }
+
+	// if var_a.chars().last() == Some('!') {
+	// 	let mut tmp_res = var_a.chars();
+	// 	tmp_res.next_back();
+	// 	res = String::from(tmp_res.as_str());
+	// } else {
+		
+	// }
+
+	match var_a.chars().last() {
+		Some('!') => {
+			let mut tmp_res = var_a.chars();
+			tmp_res.next_back();
+			res = String::from(tmp_res.as_str())
+		},
+		Some('&') => {
+			res = String::from(format!("{}!", var_a)) // Not definitive
+			},
+		Some('|') => {
+			res = String::from(format!("{}!", var_a)) // Not definitive
+			},
+		Some('^') => {
+			res = String::from(format!("{}!", var_a)) // Not definitive
+			},
+		Some('>') => {
+			res = String::from(format!("{}!", var_a)) // Not definitive
+			},
+		Some('=') => {
+			res = String::from(format!("{}!", var_a)) // Not definitive
+			},
+		Some('A'..='Z') => {
+			res = String::from(format!("{}!", var_a))
+		},
+		_ => {
+			panic!("invalid input");
+		}
 	}
 
 	res
