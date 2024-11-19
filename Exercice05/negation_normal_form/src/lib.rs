@@ -11,12 +11,21 @@ enum Symbol {
 fn separator(formula: String) -> (String, String) {
 	let mut var_a = String::new();
 	let mut var_b = String::new();
-	let mut stack: Vec<String>;
+	let mut stack: Vec<String> = Vec::new();
 
 	for chr in formula.chars() {
 		match chr {
-			'A'..='Z' => {},
-			'&' => {},
+			'A'..='Z' => {
+				stack.push(String::from(chr));
+			},
+			'!' => {
+				let tmp = stack.pop().unwrap();
+				stack.push(String::from(format!("{}!",tmp)))
+			},
+			'&' => {
+				var_b = stack.pop().unwrap();
+				var_a = stack.pop().unwrap();
+			},
 			_ => {
 				panic!("invalid input");
 			}
@@ -53,7 +62,10 @@ fn negation(var_a: String) -> String {
 			res = String::from(tmp_res.as_str())
 		},
 		Some('&') => {
-			res = String::from(format!("{}!", var_a)) // Not definitive
+			let vars = separator(var_a);
+			let var_a = negation(vars.0);
+			let var_b = negation(vars.1);
+			res = String::from(format!("{}{}|", var_a, var_b))
 			},
 		Some('|') => {
 			res = String::from(format!("{}!", var_a)) // Not definitive
@@ -204,7 +216,7 @@ mod tests {
 		assert_eq!(negation_normal_form("A!B="), "A!B&AB!&|");
 		assert_eq!(negation_normal_form("AB!="), "AB!&A!B&|");
 		assert_eq!(negation_normal_form("A!B!="), "A!B!&AB&|");
-		// assert_eq!(negation_normal_form("AB&!"), "A!B!|");
+		assert_eq!(negation_normal_form("AB&!"), "A!B!|");
 		// assert_eq!(negation_normal_form("AB|!"), "A!B!&");
 	}
 
