@@ -16,7 +16,6 @@ fn separator(formula: String) -> (String, String) {
 	let mut cptr = 0;
 
 	for chr in formula.chars() {
-		println!("Sub_stack: {:?}", stack);
 		cptr+=1;
 		match chr {
 			'A'..='Z' => {
@@ -57,22 +56,6 @@ fn separator(formula: String) -> (String, String) {
 
 fn negation(var_a: String) -> String {
 	let res;
-
-	// if var_a.chars().last() != Some('!') {
-	// 	res = String::from(format!("{}!", var_a));
-	// } else {
-	// 	let mut tmp_res = var_a.chars();
-	// 	tmp_res.next_back();
-	// 	res = String::from(tmp_res.as_str())
-	// }
-
-	// if var_a.chars().last() == Some('!') {
-	// 	let mut tmp_res = var_a.chars();
-	// 	tmp_res.next_back();
-	// 	res = String::from(tmp_res.as_str());
-	// } else {
-		
-	// }
 
 	match var_a.chars().last() {
 		Some('!') => {
@@ -144,9 +127,11 @@ fn nnf_for_one_symbol(symbol:Symbol, stack: &mut Vec<String>) {
 	if symbol == Symbol::Negation {
 		var_a = stack.pop().unwrap();
 		var_b = String::new();
-	} else {
+	} else if stack.len() >= 2 {
 		var_b = stack.pop().unwrap();
 		var_a = stack.pop().unwrap();
+	} else {
+		panic!("missing variable");
 	}
 
 	match symbol {
@@ -204,10 +189,10 @@ pub fn negation_normal_form(formula: &str) -> String {
 		}
 	}
 
+	if stack.len() >= 2 { panic!("missing operator"); }
+
 	match stack.pop() {
-		Some(val) => {
-			// println!("res: {}", val);
-			return val},
+		Some(val) => return val,
 		_ => {
 			panic!("Stack is empty")
 		},
@@ -218,7 +203,7 @@ pub fn negation_normal_form(formula: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-	// /*
+
 	#[test]
 	fn base_case() {
 		assert_eq!(negation_normal_form("A!"), "A!");
@@ -228,7 +213,7 @@ mod tests {
 		assert_eq!(negation_normal_form("AB>"), "A!B|");
 		assert_eq!(negation_normal_form("AB="), "AB&A!B!&|");
 	}
-	// */
+
 	#[test]
 	fn mid_case() {
 		assert_eq!(negation_normal_form("A!!"), "A");
@@ -247,7 +232,6 @@ mod tests {
 
 	}
 
-	
 	#[test]
 	fn tricky_case() {
 		assert_eq!(negation_normal_form("A!B>A&"), "AB|A&");
@@ -255,7 +239,7 @@ mod tests {
 		assert_eq!(negation_normal_form("AB|!C&!"),"AB|C!|");
 		assert_eq!(negation_normal_form("AB&AB|>"), "A!B!|AB||");
 	}
-	
+
 
 	#[test]
 	fn already_in_nnf() {
@@ -264,25 +248,23 @@ mod tests {
 		assert_eq!(negation_normal_form("AB&A!B!&|"), "AB&A!B!&|");
 	}
 
-	/*
+
 	#[test]
 	#[should_panic(expected = "invalid input")]
 	fn invalid_input() {
-		// negation_normal_form("AB@");
+		negation_normal_form("AB@");
 	}
-*/
-	/*
+
 	#[test]
 	#[should_panic(expected = "missing operator")]
 	fn missing_operator() {
-		// negation_normal_form("AB!");
+		negation_normal_form("AB!");
 	}
- 	*/
-	/*
+
 	#[test]
 	#[should_panic(expected = "missing variable")]
 	fn missing_variable() {
-		// negation_normal_form("A&");
+		negation_normal_form("A&");
 	}
-*/
+
 }
