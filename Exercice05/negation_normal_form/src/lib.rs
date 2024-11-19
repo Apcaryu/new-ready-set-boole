@@ -12,8 +12,12 @@ fn separator(formula: String) -> (String, String) {
 	let mut var_a = String::new();
 	let mut var_b = String::new();
 	let mut stack: Vec<String> = Vec::new();
+	let formula_size = formula.len();
+	let mut cptr = 0;
 
 	for chr in formula.chars() {
+		println!("Sub_stack: {:?}", stack);
+		cptr+=1;
 		match chr {
 			'A'..='Z' => {
 				stack.push(String::from(chr));
@@ -23,15 +27,30 @@ fn separator(formula: String) -> (String, String) {
 				stack.push(String::from(format!("{}!",tmp)))
 			},
 			'&' => {
-				var_b = stack.pop().unwrap();
-				var_a = stack.pop().unwrap();
+				if cptr == formula_size {
+					var_b = stack.pop().unwrap();
+					var_a = stack.pop().unwrap();
+				} else {
+					let tmp_b = stack.pop().unwrap();
+					let tmp_a = stack.pop().unwrap();
+					stack.push(String::from(format!("{}{}&", tmp_a, tmp_b)));
+				}
 			},
+			'|' => {
+				if cptr == formula_size {
+					var_b = stack.pop().unwrap();
+					var_a = stack.pop().unwrap();
+				} else {
+					let tmp_b = stack.pop().unwrap();
+					let tmp_a = stack.pop().unwrap();
+					stack.push(String::from(format!("{}{}|", tmp_a, tmp_b)));
+				}
+			}
 			_ => {
 				panic!("invalid input");
 			}
 		}
 	}
-
 
 	(var_a, var_b)
 }
@@ -68,7 +87,10 @@ fn negation(var_a: String) -> String {
 			res = String::from(format!("{}{}|", var_a, var_b))
 			},
 		Some('|') => {
-			res = String::from(format!("{}!", var_a)) // Not definitive
+			let vars = separator(var_a);
+			let var_a = negation(vars.0);
+			let var_b = negation(vars.1);
+			res = String::from(format!("{}{}&", var_a, var_b))
 			},
 		Some('^') => {
 			res = String::from(format!("{}!", var_a)) // Not definitive
@@ -153,6 +175,7 @@ pub fn negation_normal_form(formula: &str) -> String {
 	let mut stack = Vec::new();
 
 	for chr in formula.chars() {
+		println!("Stack: {:?}", stack);
 		match chr {
 			'A'..='Z' => {
 				stack.push(String::from(chr));
@@ -182,7 +205,9 @@ pub fn negation_normal_form(formula: &str) -> String {
 	}
 
 	match stack.pop() {
-		Some(val) => return val,
+		Some(val) => {
+			// println!("res: {}", val);
+			return val},
 		_ => {
 			panic!("Stack is empty")
 		},
@@ -217,16 +242,20 @@ mod tests {
 		assert_eq!(negation_normal_form("AB!="), "AB!&A!B&|");
 		assert_eq!(negation_normal_form("A!B!="), "A!B!&AB&|");
 		assert_eq!(negation_normal_form("AB&!"), "A!B!|");
-		// assert_eq!(negation_normal_form("AB|!"), "A!B!&");
+		assert_eq!(negation_normal_form("AB|!"), "A!B!&");
+		assert_eq!(negation_normal_form("AB&!!"), "AB&");
+
 	}
 
-	/*
+	
 	#[test]
 	fn tricky_case() {
-		// assert_eq!(negation_normal_form("A!B>A&"), "AB|A&");
-		// assert_eq!(negation_normal_form("AB&!C|!"),"AB&C!&");
+		assert_eq!(negation_normal_form("A!B>A&"), "AB|A&");
+		assert_eq!(negation_normal_form("AB&!C|!"),"AB&C!&");
+		assert_eq!(negation_normal_form("AB|!C&!"),"AB|C!|");
+		assert_eq!(negation_normal_form("AB&AB|>"), "A!B!|AB||");
 	}
-	*/
+	
 
 	#[test]
 	fn already_in_nnf() {
