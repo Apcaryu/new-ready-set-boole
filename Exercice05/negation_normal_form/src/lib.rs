@@ -102,7 +102,7 @@ fn conjunction(var_a: String, var_b: String) -> String {
 fn disjunction(var_a: String, var_b: String) -> String {
 	format!("{}{}|", var_a, var_b)
 }
-
+			// println!("res: {}", val);
 fn exclusive_disjunction(var_a: String, var_b: String) -> String {
 	let n_var_a = negation(var_a.clone());
 	let n_var_b = negation(var_b.clone());
