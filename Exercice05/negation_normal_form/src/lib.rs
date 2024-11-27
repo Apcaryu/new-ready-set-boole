@@ -160,7 +160,7 @@ pub fn negation_normal_form(formula: &str) -> String {
 	let mut stack = Vec::new();
 
 	for chr in formula.chars() {
-		println!("Stack: {:?}", stack);
+		// println!("Stack: {:?}", stack);
 		match chr {
 			'A'..='Z' => {
 				stack.push(String::from(chr));
@@ -238,6 +238,7 @@ mod tests {
 		assert_eq!(negation_normal_form("AB&!C|!"),"AB&C!&");
 		assert_eq!(negation_normal_form("AB|!C&!"),"AB|C!|");
 		assert_eq!(negation_normal_form("AB&AB|>"), "A!B!|AB||");
+		assert_eq!(negation_normal_form("AB|AB&&!"), "A!B!&A!B!||");
 	}
 
 
