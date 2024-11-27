@@ -21,10 +21,16 @@ mod tests {
 	}
 
 	#[test]
+	fn mid_tests() {
+		assert_eq!(conjunctive_normal_form("AB|AB&|"), "ABA|&AB|B&");
+		assert_eq!(conjunctive_normal_form("AB|AB&&!"), "A!A!B!&B!A!B!&&");
+	}
+
+	#[test]
 	fn to_cnf_only_use_nnf_function() {
 		assert_eq!(conjunctive_normal_form("A!!"), "A");
 		assert_eq!(conjunctive_normal_form("AB&!"), "A!B!|");
-		assert_eq!(conjunctive_normal_form("AB|"), "A!B!&");
+		assert_eq!(conjunctive_normal_form("AB|!"), "A!B!&");
 		assert_eq!(conjunctive_normal_form("A!B>"), "AB|");
 	}
 
