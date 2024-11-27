@@ -15,9 +15,9 @@ mod tests {
 		assert_eq!(conjunctive_normal_form("A!"), "A!");
 		assert_eq!(conjunctive_normal_form("AB&"), "AB&");
 		assert_eq!(conjunctive_normal_form("AB|"), "AB|");
-		assert_eq!(conjunctive_normal_form("AB^"), "A!B!|AB|&");
+		assert_eq!(conjunctive_normal_form("AB^"), "B!A!|AB|&");
 		assert_eq!(conjunctive_normal_form("AB>"), "A!B|");
-		assert_eq!(conjunctive_normal_form("AB="), "A!B|AB!|&");
+		assert_eq!(conjunctive_normal_form("AB="), "BA!|AB!|&");
 	}
 
 	#[test]
@@ -26,6 +26,16 @@ mod tests {
 		assert_eq!(conjunctive_normal_form("AB&!"), "A!B!|");
 		assert_eq!(conjunctive_normal_form("AB|"), "A!B!&");
 		assert_eq!(conjunctive_normal_form("A!B>"), "AB|");
+	}
 
+	#[test]
+	fn subject_tests() {
+		assert_eq!(conjunctive_normal_form("AB&!"), "A!B!|");
+		assert_eq!(conjunctive_normal_form("AB|!"), "A!B!&");
+		assert_eq!(conjunctive_normal_form("AB|C&"), "AB|C&");
+		assert_eq!(conjunctive_normal_form("AB|C|D|"), "ABCD|||");
+		assert_eq!(conjunctive_normal_form("AB&C&D&"), "ABCD&&&");
+		assert_eq!(conjunctive_normal_form("AB&!C!|"), "A!B!C!||");
+		assert_eq!(conjunctive_normal_form("AB|!C!&"), "A!B!C!&&");
 	}
 }
