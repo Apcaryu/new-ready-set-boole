@@ -1,4 +1,4 @@
-use negation_normal_form::negation_normal_form;
+use negation_normal_form::{negation_normal_form, separator};
 
 fn conjunction(stack: &mut Vec<String>) {
 	let mut var_b = conjunctive_normal_form(stack.pop().unwrap().as_str());
@@ -11,12 +11,26 @@ fn conjunction(stack: &mut Vec<String>) {
 	stack.push(String::from(format!("{}{}&", var_a, var_b)));
 }
 
+fn de_morgan_law(φ: String, ψ: String) -> (String, String) {
+	let (psi, psi_p) = separator(ψ);
+	let var_a = conjunctive_normal_form(format!("{}{}|", φ, psi).as_str());
+	let var_b = conjunctive_normal_form(format!("{}{}|", φ, psi_p).as_str());
+	(var_a, var_b)
+}
+
 fn disjunction(stack: &mut Vec<String>) {
 	let mut var_b = conjunctive_normal_form(stack.pop().unwrap().as_str());
 	let mut var_a = conjunctive_normal_form(stack.pop().unwrap().as_str());
 	while var_a.chars().last() == Some('|') {
 		var_a.pop();
 		var_b = format!("{}|", var_b);
+	}
+
+	if var_a.chars().last() == Some('&') {
+		(var_a, var_b) = de_morgan_law(var_b, var_a);
+		println!("{}{}&", var_a, var_b);
+		stack.push(format!("{}{}&", var_a, var_b));
+		return ();
 	}
 
 	stack.push(String::from(format!("{}{}|", var_a, var_b)));
@@ -66,15 +80,15 @@ mod tests {
 		assert_eq!(conjunctive_normal_form("A!"), "A!");
 		assert_eq!(conjunctive_normal_form("AB&"), "AB&");
 		assert_eq!(conjunctive_normal_form("AB|"), "AB|");
-		// assert_eq!(conjunctive_normal_form("AB^"), "B!A!|AB|&");
 		assert_eq!(conjunctive_normal_form("AB>"), "A!B|");
-		// assert_eq!(conjunctive_normal_form("AB="), "BA!|AB!|&");
+		assert_eq!(conjunctive_normal_form("AB^"), "B!A!|AB|&");
+		assert_eq!(conjunctive_normal_form("AB="), "BA!|AB!|&");
 	}
 
 	#[test]
 	fn mid_tests() {
-		// assert_eq!(conjunctive_normal_form("AB|AB&|"), "ABA|&AB|B&");
-		// assert_eq!(conjunctive_normal_form("AB|AB&&!"), "A!A!B!&B!A!B!&&");
+		assert_eq!(conjunctive_normal_form("AB|AB&|"), "ABA|&AB|B&");
+		assert_eq!(conjunctive_normal_form("AB|AB&&!"), "A!A!B!&B!A!B!&&");
 	}
 
 	#[test]

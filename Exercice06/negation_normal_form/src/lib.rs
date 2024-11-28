@@ -8,7 +8,7 @@ enum Symbol {
 	LogicalEquivalence,
 }
 
-fn separator(formula: String) -> (String, String) {
+pub fn separator(formula: String) -> (String, String) {
 	let mut var_a = String::new();
 	let mut var_b = String::new();
 	let mut stack: Vec<String> = Vec::new();
