@@ -11,7 +11,7 @@ fn conjunction(stack: &mut Vec<String>) {
 	stack.push(String::from(format!("{}{}&", var_a, var_b)));
 }
 
-fn conjunctive_normal_form(formula: &str) -> String {
+pub fn conjunctive_normal_form(formula: &str) -> String {
 	let nnf_formula = negation_normal_form(formula);
 	let mut stack = Vec::new();
 
