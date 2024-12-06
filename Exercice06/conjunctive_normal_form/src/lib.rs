@@ -22,11 +22,6 @@ fn disjunction(stack: &mut Vec<String>) {
 	let mut var_b = conjunctive_normal_form(stack.pop().unwrap().as_str());
 	let mut var_a = conjunctive_normal_form(stack.pop().unwrap().as_str());
 	
-	// while var_a.chars().last() == Some('|') {
-	// 	var_a.pop();
-	// 	var_b = format!("{}|", var_b);
-	// }
-
 	if var_a.chars().last() == Some('&') {
 		(var_a, var_b) = de_morgan_law(var_b, var_a);
 		// println!("{}{}&", var_a, var_b);
@@ -48,6 +43,10 @@ fn disjunction(stack: &mut Vec<String>) {
 }
 
 pub fn conjunctive_normal_form(formula: &str) -> String {
+	conjunctive_normal_form_recursive(conjunctive_normal_form_recursive(formula).as_str())
+}
+
+fn conjunctive_normal_form_recursive(formula: &str) -> String {
 	let nnf_formula = negation_normal_form(formula);
 	let mut stack = Vec::new();
 
@@ -71,12 +70,11 @@ pub fn conjunctive_normal_form(formula: &str) -> String {
 			}
 		}
 	}
+	
+	if stack.len() > 1 {
+		panic!("missing operator");
+	}
 
-	/* 
-	// idea for a relecture but actualy overflow
-	// let tmp = String::from(conjunctive_normal_form(stack.pop().unwrap().as_str()));
-	// stack.push(tmp);
-	*/
 	match stack.pop() {
 		Some(val) => return val,
 		None => {
@@ -97,8 +95,8 @@ mod tests {
 		assert_eq!(conjunctive_normal_form("AB&"), "AB&");
 		assert_eq!(conjunctive_normal_form("AB|"), "AB|");
 		assert_eq!(conjunctive_normal_form("AB>"), "A!B|");
-		assert_eq!(conjunctive_normal_form("AB^"), "AA!|AB|&B!A!|B!B|&&"); // TODO need to return in cnf function for this result: "AA!|AB|B!A!|B!B|&&&"
-		assert_eq!(conjunctive_normal_form("AB="), "AA!|AB!|&BA!|BB!|&&"); // TODO need to return in cnf function for this result: "AA!|AB!|BA!|BB!|&&&"
+		assert_eq!(conjunctive_normal_form("AB^"), "AA!|AB|B!A!|B!B|&&&");
+		assert_eq!(conjunctive_normal_form("AB="), "AA!|AB!|BA!|BB!|&&&");
 	}
 
 	#[test]
