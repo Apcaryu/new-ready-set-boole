@@ -45,6 +45,7 @@ mod tests {
 	#[test]
 	fn explosive_test() {
 		assert!(sat("ABCDEFGHIJKLMNOPQRSTUVWXYZ&&&&&&&&&&&&&&&&&&&&&&&&&"));
+		assert!(!sat("AA!&BB!&CC!&DD!&EE!&FF!&GG!&HH!&II!&JJ!&KK!&LL!&MM!&NN!&OO!&PP!&QQ!&RR!&SS!&TT!&UU!&VV!&WW!&XX!&YY!&ZZ!&&&&&&&&&&&&&&&&&&&&&&&&&&"))
 	}
 
 }
