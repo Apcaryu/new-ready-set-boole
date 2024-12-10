@@ -41,7 +41,7 @@ fn get_variables(formula: &str) -> Vec<char> {
 	out
 }
 
-fn gen_one_variable(name: char, nb_value: u16, tmp_pow: u64) -> Variable {
+fn gen_one_variable(name: char, nb_value: u64, tmp_pow: u64) -> Variable {
 	let mut out = Variable::new(name);
 	let mut cptr = 0;
 
@@ -73,7 +73,7 @@ fn find_variable_in_vector(vec: &Vec<Variable>, target: char) -> Variable {
 
 fn calculate_all(formula: &str, tab: Vec<Variable>, nb_vars: u8) -> bool {
 	
-	for idx  in 0..2u16.pow(nb_vars as u32) {
+	for idx  in 0..2u64.pow(nb_vars as u32) {
 		let mut tmp_formula = String::new();
 		for chr in formula.chars() {
 			if chr.is_ascii_uppercase() {
@@ -83,6 +83,7 @@ fn calculate_all(formula: &str, tab: Vec<Variable>, nb_vars: u8) -> bool {
 			}
 		}
 
+		// println!("eval of {}", tmp_formula);
 		if eval_formula(tmp_formula.as_str()) {
 			return true
 		}
@@ -98,7 +99,7 @@ fn gen_var_tab(vars: Vec<char>) -> Vec<Variable> {
 	
 	while nb_vars > 0 {
 		let tmp_pow = 2u64.pow(nb_vars as u32);
-		out.push(gen_one_variable(vars[cptr], 2u16.pow(vars.len() as u32), tmp_pow));
+		out.push(gen_one_variable(vars[cptr], 2u64.pow(vars.len() as u32), tmp_pow));
 
 		nb_vars -= 1;
 		cptr += 1;
@@ -112,7 +113,7 @@ pub fn sat(formula: &str) -> bool {
 	let vars_tab = gen_var_tab(get_variables(formula));
 	// println!("{:?}", vars_tab);
 	let vars_len = vars_tab.len();
-	
+
 	calculate_all(formula, vars_tab, vars_len as u8)
 	// true
 }
@@ -160,9 +161,10 @@ mod tests {
 
 	#[test]
 	fn explosive_test() {
-		assert!(sat("ABCDEFGHIJKLMNO&&&&&&&&&&&&&&")); // Actual max
-		assert!(!sat("AA!&BB!&CC!&DD!&EE!&FF!&GG!&HH!&II!&JJ!&KK!&LL!&MM!&NN!&OO!&&&&&&&&&&&&&&&"))
-		// assert!(sat("ABCDEFGHIJKLMNOP&&&&&&&&&&&&&&&"));
+		assert!(sat("ABCDEFGHIJKLMNO&&&&&&&&&&&&&&"));
+		assert!(!sat("AA!&BB!&CC!&DD!&EE!&FF!&GG!&HH!&II!&JJ!&KK!&LL!&MM!&NN!&OO!&&&&&&&&&&&&&&&"));
+		assert!(sat("ABCDEFGHIJKLMNOP&&&&&&&&&&&&&&&"));
+		// Too long test
 		// assert!(sat("ABCDEFGHIJKLMNOPQRSTUVWXYZ&&&&&&&&&&&&&&&&&&&&&&&&&"));
 		// assert!(!sat("AA!&BB!&CC!&DD!&EE!&FF!&GG!&HH!&II!&JJ!&KK!&LL!&MM!&NN!&OO!&PP!&QQ!&RR!&SS!&TT!&UU!&VV!&WW!&XX!&YY!&ZZ!&&&&&&&&&&&&&&&&&&&&&&&&&&"))
 	}
