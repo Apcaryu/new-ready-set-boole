@@ -1,9 +1,10 @@
+use boolean_evaluation::eval_formula;
+
 pub fn sat(formula: &str) -> bool {false}
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
 	
 	#[test]
 	fn one_var() {
