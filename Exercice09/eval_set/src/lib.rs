@@ -1,19 +1,39 @@
 use negation_normal_form::negation_normal_form;
 
-fn get_universe(sets: &Vec<Vec<i32>>) -> Vec<i32> {
+fn get_vars(formula: &str) -> Vec<char> {
+	let mut res = Vec::new();
+
+	for chr in formula.chars() {
+		match chr {
+			'A'..='Z' => {
+				let find_var = res.iter().find(|&&x| x == chr);
+				match find_var {
+					None => {
+						res.push(chr);
+					},
+					_ => {}
+				}
+			},
+			_ => {}
+		}
+	}
+
+	res
+}
+
+fn get_universe(sets: &Vec<Vec<i32>>, vars: Vec<char>) -> Vec<i32> {
 	let mut universe = Vec::new();
-	for set in sets {
-		for value in set {
-			let res = universe.iter().find(|&&x| x == *value);
-			match res {
-				None => {
-					universe.push(*value);
-				},
+	for chr in vars {
+		let idx: usize = (chr.to_digit(16).unwrap() - 10) as usize;
+		let tmp_set = sets[idx].clone();
+		for value in tmp_set {
+			let in_universe = universe.iter().find(|&&x| x == value);
+			match in_universe {
+				None => {universe.push(value);},
 				_ => {}
 			}
 		}
 	}
-	
 	universe
 }
 
@@ -104,7 +124,7 @@ fn union(stack: &mut Vec<Vec<i32>>) {
 pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 	let nnf_formula = negation_normal_form(formula);
 	print!("nnf_formula = {} | ", nnf_formula);
-	let universe = get_universe(&sets);
+	let universe = get_universe(&sets, get_vars(formula));
 	let mut stack = Vec::new();
 
 	for chr in nnf_formula.chars() {
@@ -128,23 +148,51 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
     stack.pop().unwrap()
 }
 
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
-	#[test]
-	fn universe_test() {
-		let sets = vec![
-			vec![0, 1, 2],
-			vec![0, 3, 4],
-		];
-		assert_eq!(get_universe(&sets), vec![0, 1, 2, 3, 4]);
+	fn check_sets<T>(left: Vec<T>, right: Vec<T>) 
+	where T: std::fmt::Debug + std::cmp::PartialEq + std::marker::Copy
+	{
+		if left.len() != right.len() {
+			panic!("left={:?}\nright={:?}", left, right)
+		}
 
+		for val_a in &left {
+			let finded = right.iter().find(|&&x| x == *val_a);
+			match finded {
+				None => { panic!("left={:?}\nright={:?}", left, right) },
+				_ => {}
+			}
+		}
+	}
+
+	#[test]
+	fn get_vars_tests() {
+		check_sets(get_vars("A"), vec!['A']);
+		check_sets(get_vars("AB&"), vec!['A', 'B']);
+		check_sets(get_vars("AB&B"), vec!['A', 'B']);
+		check_sets(get_vars("AFB&&"), vec!['A', 'B', 'F']);
+		check_sets(get_vars("AAAAAAAAAAAAAAAAAAAAAAAAAA"), vec!['A']);
+	}
+
+	#[test]
+	fn universe_tests() {
 		let sets = vec![
-			vec![1, 3, 2],
-			vec![0, 3, 4],
+			vec![0, 1, 2], // A
+			vec![0, 3, 4], // B
+			vec![3, 8, 2], // C
+			vec![4, 0, 3], // D
+			vec![5, 10, 4], // E
+			vec![7, 5, 6], // F
 		];
-		assert_eq!(get_universe(&sets), vec![1, 3, 2, 0, 4]);
+
+		check_sets(get_universe(&sets, vec!['A']), vec![0, 1, 2]);
+		check_sets(get_universe(&sets, vec!['A', 'B']), vec![0, 1, 2, 3, 4]);
+		check_sets(get_universe(&sets, vec!['A', 'B', 'F']), vec![0, 1, 2, 3, 4, 7, 5, 6]);
 
 	}
 
@@ -241,7 +289,7 @@ mod tests {
 		];
 
 		assert_eq!(eval_set("A", sets.clone()), vec![0, 1, 2]);
-		assert_eq!(eval_set("A!", sets.clone()), vec![3, 4]);
+		assert_eq!(eval_set("A!", sets.clone()), vec![]);
 		assert_eq!(eval_set("AB&", sets.clone()), vec![0]);
 		assert_eq!(eval_set("AB|", sets.clone()), vec![0, 1, 2, 3, 4]);
 		assert_eq!(eval_set("AB^", sets.clone()), vec![1, 2, 3, 4]);
@@ -249,21 +297,6 @@ mod tests {
 		assert_eq!(eval_set("AB=", sets.clone()), vec![]);
 	}
 
-	fn check_sets(left: Vec<i32>, right: Vec<i32>) {
-		let res = true;
-
-		if left.len() != right.len() {
-			panic!("left={:?}\nright={:?}", left, right)
-		}
-
-		for val_a in &left {
-			let finded = right.iter().find(|&&x| x == *val_a);
-			match finded {
-				None => { panic!("left={:?}\nright={:?}", left, right) },
-				_ => {}
-			}
-		}
-	}
 
 	#[test]
 	fn complex_tests() {
@@ -282,7 +315,7 @@ mod tests {
 		check_sets(eval_set("ABC&&", sets.clone()), vec![]);
 		check_sets(eval_set("FED||", sets.clone()), vec![7, 5, 6, 10, 4, 0, 3]);
 		check_sets(eval_set("ACE^^", sets.clone()), vec![3, 8, 5, 10, 4, 0, 1]);
-		check_sets(eval_set("FDB>>", sets.clone()), vec![0, 1, 2, 3, 4, 8, 10, 7, 5, 6]);
+		check_sets(eval_set("FDB>>", sets.clone()), vec![7, 5, 6, 0, 3, 4]);
 		check_sets(eval_set("ABF==", sets.clone()), vec![]);
 	}
 }
