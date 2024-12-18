@@ -43,7 +43,33 @@ fn complement(stack: &mut Vec<Vec<i32>>, universe: &Vec<i32>) {
 	stack.push(res);
 }
 
-fn intersection() {}
+fn intersection(stack: &mut Vec<Vec<i32>>) {
+	let var_b = stack.pop();
+	let var_a = stack.pop();
+	let mut res =Vec::new();
+
+	match var_b {
+		Some(value_b) => {
+			match var_a {
+				Some(_) => {
+					for value_a in var_a.unwrap() {
+						let finded = value_b.iter().find(|&&x| x == value_a);
+						match finded {
+							Some(val) => {
+								res.push(*val);
+							}
+							_ => {}
+						}
+					}
+				},
+				_ => { panic!("set missing") }
+			}
+		},
+		_ => { panic!("set missing") }
+	}
+
+	stack.push(res);
+}
 
 fn union() {}
 
@@ -61,7 +87,7 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 				complement(&mut stack, &universe);
 			},
 			'&' => {
-				intersection();
+				intersection(&mut stack);
 			},
 			'|' => {
 				union();
@@ -111,7 +137,30 @@ mod tests {
 		assert_eq!(stack.pop().unwrap(), vec![3, 10]);
 	}
 
+	#[test]
+	fn intersection_test(){
+		let mut stack = vec![vec![0, 1, 2], vec![3, 4, 5]];
+		intersection(&mut stack);
+		assert_eq!(stack.pop().unwrap(), vec![]);
 
+		let mut stack = vec![vec![0, 1, 2], vec![0, 3, 4]];
+		intersection(&mut stack);
+		assert_eq!(stack.pop().unwrap(), vec![0]);
+
+		let mut stack = vec![vec![2, 1, 0], vec![0, 3, 4]];
+		intersection(&mut stack);
+		assert_eq!(stack.pop().unwrap(), vec![0]);
+
+		let mut stack = vec![vec![0, 1, 3], vec![0, 3, 4]];
+		intersection(&mut stack);
+		assert_eq!(stack.pop().unwrap(), vec![0, 3]);
+
+		let mut stack = vec![vec![1, 3, 0], vec![0, 3, 4]];
+		intersection(&mut stack);
+		assert_eq!(stack.pop().unwrap(), vec![3, 0]);
+	}
+
+	
     #[test]
     fn subject_tests() {
 		let sets = vec![
