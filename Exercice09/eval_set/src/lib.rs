@@ -121,6 +121,44 @@ fn union(stack: &mut Vec<Vec<i32>>) {
 	stack.push(res);
 }
 
+fn xor(stack: &mut Vec<Vec<i32>>) {
+	let var_b = stack.pop();
+	let var_a = stack.pop();
+	let mut res = Vec::new();
+
+	match var_b.as_ref() {
+		Some(value_b) => {
+			match var_a.as_ref() {
+				Some(value_a) => {
+					for value in value_a {
+						let finded = value_b.iter().find(|&&x| x == *value);
+						match finded {
+							None => {
+								res.push(*value);
+							},
+							_ => {}
+						}
+					}
+				},
+				_ => { panic!("set missing")}
+			}
+		},
+		_ => { panic!("set missing") }
+	}
+
+	for value_b in var_b.unwrap().iter() {
+		let finded = var_a.as_ref().unwrap().iter().find(|&&x| x == *value_b);
+		match finded {
+			None => {
+				res.push(*value_b);
+			},
+			_ => {}
+		}
+	}
+
+	stack.push(res);
+}
+
 pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 	let nnf_formula = negation_normal_form(formula);
 	print!("nnf_formula = {} | ", nnf_formula);
@@ -141,6 +179,9 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 			'|' => {
 				union(&mut stack);
 			},
+			'^' => {},
+			'>' => {},
+			'=' => {},
 			_ => {}
 		}
 	}
@@ -258,6 +299,25 @@ mod tests {
 		let mut stack = vec![vec![0, 5, 1], vec![4, 2, 3]];
 		union(&mut stack);
 		assert_eq!(stack.pop().unwrap(), vec![0, 5, 1, 4, 2, 3]);
+	}
+
+	#[test]
+	fn xor_tests() {
+		let mut stack = vec![vec![], vec![]];
+		xor(&mut stack);
+		assert_eq!(stack.pop().unwrap(), vec![]);
+
+		let mut stack = vec![vec![0, 1, 2], vec![0, 3, 4]];
+		xor(&mut stack);
+		assert_eq!(stack.pop().unwrap(), vec![1, 2, 3, 4]);
+
+		let mut stack = vec![vec![], vec![0, 3, 4]];
+		xor(&mut stack);
+		assert_eq!(stack.pop().unwrap(), vec![0, 3, 4]);
+		
+		let mut stack = vec![vec![0, 1, 2], vec![]];
+		xor(&mut stack);
+		assert_eq!(stack.pop().unwrap(), vec![0, 1, 2]);
 	}
 
     #[test]
