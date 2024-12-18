@@ -105,6 +105,7 @@ fn union(stack: &mut Vec<Vec<i32>>) {
 
 pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 	let nnf_formula = negation_normal_form(formula);
+	print!("nnf_formula = {} | ", nnf_formula);
 	let universe = get_universe(&sets);
 	let mut stack = Vec::new();
 
@@ -234,4 +235,56 @@ mod tests {
 
     }
 
+	#[test]
+	fn basics_tests() {
+		let sets = vec![
+			vec![0, 1, 2],
+			vec![0, 3, 4],
+		];
+
+		assert_eq!(eval_set("A", sets.clone()), vec![0, 1, 2]);
+		assert_eq!(eval_set("A!", sets.clone()), vec![3, 4]);
+		assert_eq!(eval_set("AB&", sets.clone()), vec![0]);
+		assert_eq!(eval_set("AB|", sets.clone()), vec![0, 1, 2, 3, 4]);
+		assert_eq!(eval_set("AB^", sets.clone()), vec![1, 2, 3, 4]);
+		assert_eq!(eval_set("AB>", sets.clone()), vec![3, 4, 0]);
+		assert_eq!(eval_set("AB=", sets.clone()), vec![0]);
+	}
+
+	fn check_sets(left: Vec<i32>, right: Vec<i32>) {
+		let res = true;
+
+		if left.len() != right.len() {
+			panic!("left={:?}\nright={:?}", left, right)
+		}
+
+		for val_a in &left {
+			let finded = right.iter().find(|&&x| x == *val_a);
+			match finded {
+				None => { panic!("left={:?}\nright={:?}", left, right) },
+				_ => {}
+			}
+		}
+	}
+
+	#[test]
+	fn complex_tests() {
+		let sets = vec![
+			vec![0, 1, 2], // A
+			vec![0, 3, 4], // B
+			vec![3, 8, 2], // C
+			vec![4, 0, 3], // D
+			vec![5, 10, 4], // E
+			vec![7, 5, 6], // F
+			// Universe = [0, 1, 2, 3, 4, 8, 5, 10, 7, 6]
+		];
+
+		check_sets(eval_set("AD|B|", sets.clone()), vec![0, 1, 2, 4, 3]);
+		check_sets(eval_set("D!B&A^", sets.clone()), vec![0, 1, 2]);
+		check_sets(eval_set("ABC&&", sets.clone()), vec![]);
+		check_sets(eval_set("FED||", sets.clone()), vec![7, 5, 6, 10, 4, 0, 3]);
+		check_sets(eval_set("ACE^^", sets.clone()), vec![3, 8, 5, 10, 4, 0, 1]);
+		check_sets(eval_set("FDB>>", sets.clone()), vec![0, 1, 2, 3, 4, 8, 10, 7, 5, 6]);
+		check_sets(eval_set("ABF==", sets.clone()), vec![]);
+	}
 }
