@@ -22,6 +22,31 @@ fn get_set(stack: &mut Vec<Vec<i32>>, chr: char, sets: &Vec<Vec<i32>>) {
 	stack.push(sets[idx as usize].clone());
 }
 
+fn complement(stack: &mut Vec<Vec<i32>>, universe: &Vec<i32>) {
+	let var = stack.pop();
+	let mut res: Vec<i32> = Vec::new();
+	match var {
+		Some(var) => {
+			for val in universe {
+				let finded = var.iter().find(|&&x| x == *val);
+				match finded {
+					None => {
+						res.push(*val);
+					},
+					_ => {}
+				}
+			}
+		},
+		_ => { panic!("set missing") }
+	}
+	
+	stack.push(res);
+}
+
+fn intersection() {}
+
+fn union() {}
+
 pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 	let nnf_formula = negation_normal_form(formula);
 	let universe = get_universe(&sets);
@@ -32,14 +57,20 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 			'A'..='Z' => {
 				get_set(&mut stack, chr, &sets);
 			},
-			'!' => {},
-			'&' => {},
-			'|' => {},
+			'!' => {
+				complement(&mut stack, &universe);
+			},
+			'&' => {
+				intersection();
+			},
+			'|' => {
+				union();
+			},
 			_ => {}
 		}
 	}
 	println!("stack {:?}", stack);
-    vec![]
+    stack.pop().unwrap()
 }
 
 #[cfg(test)]
@@ -62,8 +93,32 @@ mod tests {
 
 	}
 
+	#[test]
+	fn complement_test() {
+		let universe = vec![0, 1, 2];
+		let mut stack = vec![vec![0, 1, 2]];
+		complement(&mut stack, &universe);
+		assert_eq!(stack.pop().unwrap(), vec![]);
+
+		let universe = vec![2, 0, 1];
+		stack.push(vec![0, 1, 2]);
+		complement(&mut stack, &universe);
+		assert_eq!(stack.pop().unwrap(), vec![]);
+
+		let universe = vec![0, 1, 2, 3, 10];
+		stack.push(vec![0, 1, 2]);
+		complement(&mut stack, &universe);
+		assert_eq!(stack.pop().unwrap(), vec![3, 10]);
+	}
+
+
     #[test]
     fn subject_tests() {
+		let sets = vec![
+			vec![0, 1, 2],
+		];
+		assert_eq!(eval_set("A!", sets), vec![]);
+		
         let sets = vec![
 			vec![0, 1, 2],
 			vec![0, 3, 4],
@@ -76,9 +131,5 @@ mod tests {
 		];
 		assert_eq!(eval_set("AB|", sets), vec![0, 1, 2, 3, 4, 5]);
 
-		let sets = vec![
-			vec![0, 1, 2],
-		];
-		assert_eq!(eval_set("A!", sets), vec![]);
     }
 }
