@@ -160,12 +160,12 @@ fn xor(stack: &mut Vec<Vec<i32>>) {
 }
 
 pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
-	let nnf_formula = negation_normal_form(formula);
-	print!("nnf_formula = {} | ", nnf_formula);
+	//let nnf_formula = negation_normal_form(formula);
+	//print!("nnf_formula = {} | ", nnf_formula);
 	let universe = get_universe(&sets, get_vars(formula));
 	let mut stack = Vec::new();
 
-	for chr in nnf_formula.chars() {
+	for chr in formula.chars() {
 		match chr {
 			'A'..='Z' => {
 				get_set(&mut stack, chr, &sets);
@@ -179,7 +179,9 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 			'|' => {
 				union(&mut stack);
 			},
-			'^' => {},
+			'^' => {
+				xor(&mut stack);
+			},
 			'>' => {},
 			'=' => {},
 			_ => {}
