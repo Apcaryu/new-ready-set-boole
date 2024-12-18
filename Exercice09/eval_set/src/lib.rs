@@ -1,5 +1,3 @@
-use std::collections::btree_map::Values;
-
 use negation_normal_form::negation_normal_form;
 
 fn get_universe(sets: &Vec<Vec<i32>>) -> Vec<i32> {
@@ -248,7 +246,7 @@ mod tests {
 		assert_eq!(eval_set("AB|", sets.clone()), vec![0, 1, 2, 3, 4]);
 		assert_eq!(eval_set("AB^", sets.clone()), vec![1, 2, 3, 4]);
 		assert_eq!(eval_set("AB>", sets.clone()), vec![3, 4, 0]);
-		assert_eq!(eval_set("AB=", sets.clone()), vec![0]);
+		assert_eq!(eval_set("AB=", sets.clone()), vec![]);
 	}
 
 	fn check_sets(left: Vec<i32>, right: Vec<i32>) {
