@@ -1,3 +1,5 @@
+use std::collections::btree_map::Values;
+
 use negation_normal_form::negation_normal_form;
 
 fn get_universe(sets: &Vec<Vec<i32>>) -> Vec<i32> {
@@ -71,7 +73,35 @@ fn intersection(stack: &mut Vec<Vec<i32>>) {
 	stack.push(res);
 }
 
-fn union() {}
+fn union(stack: &mut Vec<Vec<i32>>) {
+	let var_b = stack.pop();
+	let var_a = stack.pop();
+	let mut res;
+
+	match var_a {
+		Some(values) => {
+			res = values;
+		},
+		_ => { panic!("set missing") }
+	}
+
+	match var_b {
+		Some(values) => {
+			for val in values {
+				let finded = res.iter().find(|&&x| x == val);
+				match finded {
+					None => {
+						res.push(val);
+					},
+					_ => {}
+				}
+			}
+		},
+		_ => { panic!("set missing") }
+	}
+
+	stack.push(res);
+}
 
 pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 	let nnf_formula = negation_normal_form(formula);
@@ -90,7 +120,7 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 				intersection(&mut stack);
 			},
 			'|' => {
-				union();
+				union(&mut stack);
 			},
 			_ => {}
 		}
@@ -160,7 +190,29 @@ mod tests {
 		assert_eq!(stack.pop().unwrap(), vec![3, 0]);
 	}
 
-	
+	#[test]
+	fn union_test() {
+		let mut stack = vec![vec![], vec![]];
+		union(&mut stack);
+		assert_eq!(stack.pop().unwrap(), vec![]);
+
+		let mut stack = vec![vec![0, 1, 2], vec![]];
+		union(&mut stack);
+		assert_eq!(stack.pop().unwrap(), vec![0, 1, 2]);
+
+		let mut stack = vec![vec![], vec![0, 1, 2]];
+		union(&mut stack);
+		assert_eq!(stack.pop().unwrap(), vec![0 ,1, 2]);
+
+		let mut stack = vec![vec![0, 1, 2], vec![3, 4, 5]];
+		union(&mut stack);
+		assert_eq!(stack.pop().unwrap(), vec![0, 1, 2, 3, 4, 5]);
+
+		let mut stack = vec![vec![0, 5, 1], vec![4, 2, 3]];
+		union(&mut stack);
+		assert_eq!(stack.pop().unwrap(), vec![0, 5, 1, 4, 2, 3]);
+	}
+
     #[test]
     fn subject_tests() {
 		let sets = vec![
@@ -181,4 +233,5 @@ mod tests {
 		assert_eq!(eval_set("AB|", sets), vec![0, 1, 2, 3, 4, 5]);
 
     }
+
 }
