@@ -81,6 +81,20 @@ fn complement(set: Vec<i32>, universe: &Vec<i32>) -> Vec<i32> {
 	res
 }
 
+fn n_intersection(set_a: Vec<i32>, set_b: Vec<i32>) -> Vec<i32> {
+	let mut res = Vec::new();
+
+	for value_a in set_a {
+		let finded = set_b.iter().find(|&&x| x == value_a);
+		match finded {
+			Some(_) => { res.push(value_a); },
+			_ => {}
+		}
+	}
+
+	res
+}
+
 fn intersection(stack: &mut Vec<Vec<i32>>) {
 	let var_b = stack.pop();
 	let var_a = stack.pop();
@@ -194,7 +208,10 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 				// complement(&mut stack, &universe);
 			},
 			'&' => {
-				intersection(&mut stack);
+				let (set_a, set_b) = get_two_set_in_stack(&mut stack);
+				let tmp = n_intersection(set_a, set_b);
+				stack.push(tmp);
+				// intersection(&mut stack);
 			},
 			'|' => {
 				union(&mut stack);
@@ -276,25 +293,54 @@ mod tests {
 
 	#[test]
 	fn intersection_test(){
-		let mut stack = vec![vec![0, 1, 2], vec![3, 4, 5]];
-		intersection(&mut stack);
-		assert_eq!(stack.pop().unwrap(), vec![]);
+		let (set_a, set_b) = (vec![], vec![]);
+		check_sets(n_intersection(set_a, set_b), vec![]);
 
-		let mut stack = vec![vec![0, 1, 2], vec![0, 3, 4]];
-		intersection(&mut stack);
-		assert_eq!(stack.pop().unwrap(), vec![0]);
+		let (set_a, set_b) = (vec![], vec![3, 4, 5]);
+		check_sets(n_intersection(set_a, set_b), vec![]);
 
-		let mut stack = vec![vec![2, 1, 0], vec![0, 3, 4]];
-		intersection(&mut stack);
-		assert_eq!(stack.pop().unwrap(), vec![0]);
+		let (set_a, set_b) = (vec![0, 1, 2], vec![]);
+		check_sets(n_intersection(set_a, set_b), vec![]);
 
-		let mut stack = vec![vec![0, 1, 3], vec![0, 3, 4]];
-		intersection(&mut stack);
-		assert_eq!(stack.pop().unwrap(), vec![0, 3]);
+		let (set_a, set_b) = (vec![0], vec![3, 4, 5]);
+		check_sets(n_intersection(set_a, set_b), vec![]);
 
-		let mut stack = vec![vec![1, 3, 0], vec![0, 3, 4]];
-		intersection(&mut stack);
-		assert_eq!(stack.pop().unwrap(), vec![3, 0]);
+		let (set_a, set_b) = (vec![0, 1, 2], vec![3]);
+		check_sets(n_intersection(set_a, set_b), vec![]);
+
+		let (set_a, set_b) = (vec![0, 1, 2], vec![3, 4, 5]);
+		check_sets(n_intersection(set_a, set_b), vec![]);
+
+		let (set_a, set_b) = (vec![0, 1], vec![3, 4, 0]);
+		check_sets(n_intersection(set_a, set_b), vec![0]);
+
+		let (set_a, set_b) = (vec![0, 1, 2], vec![3, 0]);
+		check_sets(n_intersection(set_a, set_b), vec![0]);
+
+		let (set_a, set_b) = (vec![0, 1, 2], vec![0, 2, 1]);
+		check_sets(n_intersection(set_a, set_b), vec![0, 1, 2]);
+
+
+
+		// let mut stack = vec![vec![0, 1, 2], vec![3, 4, 5]];
+		// intersection(&mut stack);
+		// assert_eq!(stack.pop().unwrap(), vec![]);
+
+		// let mut stack = vec![vec![0, 1, 2], vec![0, 3, 4]];
+		// intersection(&mut stack);
+		// assert_eq!(stack.pop().unwrap(), vec![0]);
+
+		// let mut stack = vec![vec![2, 1, 0], vec![0, 3, 4]];
+		// intersection(&mut stack);
+		// assert_eq!(stack.pop().unwrap(), vec![0]);
+
+		// let mut stack = vec![vec![0, 1, 3], vec![0, 3, 4]];
+		// intersection(&mut stack);
+		// assert_eq!(stack.pop().unwrap(), vec![0, 3]);
+
+		// let mut stack = vec![vec![1, 3, 0], vec![0, 3, 4]];
+		// intersection(&mut stack);
+		// assert_eq!(stack.pop().unwrap(), vec![3, 0]);
 	}
 
 	#[test]
