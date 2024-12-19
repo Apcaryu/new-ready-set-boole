@@ -144,6 +144,10 @@ fn xor(set_a: Vec<i32>, set_b: Vec<i32>, universe: &Vec<i32>) -> Vec<i32> {
 	)
 }
 
+fn imply(set_a: Vec<i32>, set_b: Vec<i32>, universe: &Vec<i32>) -> Vec<i32> {
+	union(complement(set_a, universe), set_b)
+}
+
 pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 	//let nnf_formula = negation_normal_form(formula);
 	//print!("nnf_formula = {} | ", nnf_formula);
@@ -176,7 +180,11 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 				let tmp = xor(set_a, set_b, &universe);
 				stack.push(tmp);
 			},
-			'>' => {},
+			'>' => {
+				let (set_a, set_b) = get_two_set_in_stack(&mut stack);
+				let tmp = imply(set_a, set_b, &universe);
+				stack.push(tmp);
+			},
 			'=' => {},
 			_ => {}
 		}
@@ -332,6 +340,31 @@ mod tests {
 
 		let (set_a, set_b) = (vec![0, 1, 2], vec![]);
 		check_sets(xor(set_a, set_b, &universe), vec![0, 1, 2]);
+	}
+
+	#[test]
+	fn imply_test() {
+		let universe = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+		let (set_a, set_b) = (vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], vec![]);
+		check_sets(imply(set_a, set_b, &universe), vec![]);
+
+		let (set_a, set_b) = (vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], vec![0, 3, 4]);
+		check_sets(imply(set_a, set_b, &universe), vec![0, 3, 4]);
+
+		let (set_a, set_b) = (vec![], vec![]);
+		check_sets(imply(set_a, set_b, &universe), vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+		let (set_a, set_b) = (vec![0, 1, 2], vec![]);
+		check_sets(imply(set_a, set_b, &universe), vec![3, 4, 5, 6, 7, 8, 9, 10]);
+
+		let (set_a, set_b) = (vec![], vec![0, 3, 4]);
+		check_sets(imply(set_a, set_b, &universe), vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+		let (set_a, set_b) = (vec![0, 1, 2], vec![0, 3, 4]);
+		check_sets(imply(set_a, set_b, &universe), vec![0, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+		let (set_a, set_b) = (vec![2, 0, 1], vec![4, 3, 0]);
+		check_sets(imply(set_a, set_b, &universe), vec![0, 3, 4, 5, 6, 7, 8, 9, 10]);
 	}
 
     #[test]
