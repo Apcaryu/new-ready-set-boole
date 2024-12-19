@@ -148,6 +148,22 @@ fn imply(set_a: Vec<i32>, set_b: Vec<i32>, universe: &Vec<i32>) -> Vec<i32> {
 	union(complement(set_a, universe), set_b)
 }
 
+fn equivalence(set_a: Vec<i32>, set_b: Vec<i32>) -> Vec<i32> {
+	if set_a.len() != set_b.len() {
+		return vec![]
+	}
+
+	for value_a in &set_a {
+		let finded = set_b.iter().find(|&&x| x == *value_a);
+		match finded {
+			None => { return vec![] }
+			_ => {}
+		}
+	}
+
+	set_a
+}
+
 pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 	//let nnf_formula = negation_normal_form(formula);
 	//print!("nnf_formula = {} | ", nnf_formula);
@@ -185,7 +201,11 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 				let tmp = imply(set_a, set_b, &universe);
 				stack.push(tmp);
 			},
-			'=' => {},
+			'=' => {
+				let (set_a, set_b) = get_two_set_in_stack(&mut stack);
+				let tmp = equivalence(set_a, set_b);
+				stack.push(tmp);
+			},
 			_ => {}
 		}
 	}
@@ -367,6 +387,30 @@ mod tests {
 		check_sets(imply(set_a, set_b, &universe), vec![0, 3, 4, 5, 6, 7, 8, 9, 10]);
 	}
 
+	#[test]
+	fn equivalence_test() {
+		let (set_a, set_b) = (vec![], vec![]);
+		check_sets(equivalence(set_a, set_b), vec![]);
+
+		let (set_a, set_b) = (vec![0, 1, 2], vec![]);
+		check_sets(equivalence(set_a, set_b), vec![]);
+
+		let (set_a, set_b) = (vec![], vec![0, 1, 2]);
+		check_sets(equivalence(set_a, set_b), vec![]);
+
+		let (set_a, set_b) = (vec![0, 1, 2], vec![0, 3, 4]);
+		check_sets(equivalence(set_a, set_b), vec![]);
+
+		let (set_a, set_b) = (vec![0, 1, 2], vec![0, 1, 2]);
+		check_sets(equivalence(set_a, set_b), vec![0, 1, 2]);
+
+		let (set_a, set_b) = (vec![0, 1, 2], vec![2, 0, 1]);
+		check_sets(equivalence(set_a, set_b), vec![1, 2, 0]);
+
+		let (set_a, set_b) = (vec![0, 1, 2, 3, 4], vec![0, 1, 2]);
+		check_sets(equivalence(set_a, set_b), vec![]);
+	}
+
     #[test]
     fn subject_tests() {
 		let sets = vec![
@@ -403,7 +447,6 @@ mod tests {
 		assert_eq!(eval_set("AB>", sets.clone()), vec![3, 4, 0]);
 		assert_eq!(eval_set("AB=", sets.clone()), vec![]);
 	}
-
 
 	#[test]
 	fn complex_tests() {
