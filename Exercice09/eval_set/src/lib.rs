@@ -1,5 +1,3 @@
-use negation_normal_form::negation_normal_form;
-
 fn get_vars(formula: &str) -> Vec<char> {
 	let mut res = Vec::new();
 
@@ -81,7 +79,7 @@ fn complement(set: Vec<i32>, universe: &Vec<i32>) -> Vec<i32> {
 	res
 }
 
-fn n_intersection(set_a: Vec<i32>, set_b: Vec<i32>) -> Vec<i32> {
+fn intersection(set_a: Vec<i32>, set_b: Vec<i32>) -> Vec<i32> {
 	let mut res = Vec::new();
 
 	for value_a in set_a {
@@ -93,34 +91,6 @@ fn n_intersection(set_a: Vec<i32>, set_b: Vec<i32>) -> Vec<i32> {
 	}
 
 	res
-}
-
-fn intersection(stack: &mut Vec<Vec<i32>>) {
-	let var_b = stack.pop();
-	let var_a = stack.pop();
-	let mut res =Vec::new();
-
-	match var_b {
-		Some(value_b) => {
-			match var_a {
-				Some(_) => {
-					for value_a in var_a.unwrap() {
-						let finded = value_b.iter().find(|&&x| x == value_a);
-						match finded {
-							Some(val) => {
-								res.push(*val);
-							}
-							_ => {}
-						}
-					}
-				},
-				_ => { panic!("set missing") }
-			}
-		},
-		_ => { panic!("set missing") }
-	}
-
-	stack.push(res);
 }
 
 fn union(set_a: Vec<i32>, set_b: Vec<i32>) -> Vec<i32> {
@@ -139,8 +109,8 @@ fn union(set_a: Vec<i32>, set_b: Vec<i32>) -> Vec<i32> {
 
 fn xor(set_a: Vec<i32>, set_b: Vec<i32>, universe: &Vec<i32>) -> Vec<i32> {
 	union(
-		n_intersection(set_a.clone(), complement(set_b.clone(), universe)),
-		n_intersection(complement(set_a.clone(), universe), set_b)
+		intersection(set_a.clone(), complement(set_b.clone(), universe)),
+		intersection(complement(set_a.clone(), universe), set_b)
 	)
 }
 
@@ -165,8 +135,6 @@ fn equivalence(set_a: Vec<i32>, set_b: Vec<i32>) -> Vec<i32> {
 }
 
 pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
-	//let nnf_formula = negation_normal_form(formula);
-	//print!("nnf_formula = {} | ", nnf_formula);
 	let universe = get_universe(&sets, get_vars(formula));
 	let mut stack = Vec::new();
 
@@ -182,7 +150,7 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 			},
 			'&' => {
 				let (set_a, set_b) = get_two_set_in_stack(&mut stack);
-				let tmp = n_intersection(set_a, set_b);
+				let tmp = intersection(set_a, set_b);
 				stack.push(tmp);
 				// intersection(&mut stack);
 			},
@@ -209,7 +177,8 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 			_ => {}
 		}
 	}
-	println!("stack {:?}", stack);
+	// println!("stack {:?}", stack);
+	if stack.len() != 1 { panic!("operator missing") }
     stack.pop().unwrap()
 }
 
@@ -279,53 +248,31 @@ mod tests {
 	#[test]
 	fn intersection_test(){
 		let (set_a, set_b) = (vec![], vec![]);
-		check_sets(n_intersection(set_a, set_b), vec![]);
+		check_sets(intersection(set_a, set_b), vec![]);
 
 		let (set_a, set_b) = (vec![], vec![3, 4, 5]);
-		check_sets(n_intersection(set_a, set_b), vec![]);
+		check_sets(intersection(set_a, set_b), vec![]);
 
 		let (set_a, set_b) = (vec![0, 1, 2], vec![]);
-		check_sets(n_intersection(set_a, set_b), vec![]);
+		check_sets(intersection(set_a, set_b), vec![]);
 
 		let (set_a, set_b) = (vec![0], vec![3, 4, 5]);
-		check_sets(n_intersection(set_a, set_b), vec![]);
+		check_sets(intersection(set_a, set_b), vec![]);
 
 		let (set_a, set_b) = (vec![0, 1, 2], vec![3]);
-		check_sets(n_intersection(set_a, set_b), vec![]);
+		check_sets(intersection(set_a, set_b), vec![]);
 
 		let (set_a, set_b) = (vec![0, 1, 2], vec![3, 4, 5]);
-		check_sets(n_intersection(set_a, set_b), vec![]);
+		check_sets(intersection(set_a, set_b), vec![]);
 
 		let (set_a, set_b) = (vec![0, 1], vec![3, 4, 0]);
-		check_sets(n_intersection(set_a, set_b), vec![0]);
+		check_sets(intersection(set_a, set_b), vec![0]);
 
 		let (set_a, set_b) = (vec![0, 1, 2], vec![3, 0]);
-		check_sets(n_intersection(set_a, set_b), vec![0]);
+		check_sets(intersection(set_a, set_b), vec![0]);
 
 		let (set_a, set_b) = (vec![0, 1, 2], vec![0, 2, 1]);
-		check_sets(n_intersection(set_a, set_b), vec![0, 1, 2]);
-
-
-
-		// let mut stack = vec![vec![0, 1, 2], vec![3, 4, 5]];
-		// intersection(&mut stack);
-		// assert_eq!(stack.pop().unwrap(), vec![]);
-
-		// let mut stack = vec![vec![0, 1, 2], vec![0, 3, 4]];
-		// intersection(&mut stack);
-		// assert_eq!(stack.pop().unwrap(), vec![0]);
-
-		// let mut stack = vec![vec![2, 1, 0], vec![0, 3, 4]];
-		// intersection(&mut stack);
-		// assert_eq!(stack.pop().unwrap(), vec![0]);
-
-		// let mut stack = vec![vec![0, 1, 3], vec![0, 3, 4]];
-		// intersection(&mut stack);
-		// assert_eq!(stack.pop().unwrap(), vec![0, 3]);
-
-		// let mut stack = vec![vec![1, 3, 0], vec![0, 3, 4]];
-		// intersection(&mut stack);
-		// assert_eq!(stack.pop().unwrap(), vec![3, 0]);
+		check_sets(intersection(set_a, set_b), vec![0, 1, 2]);
 	}
 
 	#[test]
