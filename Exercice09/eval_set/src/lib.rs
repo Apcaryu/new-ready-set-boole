@@ -42,25 +42,43 @@ fn get_set(stack: &mut Vec<Vec<i32>>, chr: char, sets: &Vec<Vec<i32>>) {
 	stack.push(sets[idx as usize].clone());
 }
 
-fn complement(stack: &mut Vec<Vec<i32>>, universe: &Vec<i32>) {
-	let var = stack.pop();
-	let mut res: Vec<i32> = Vec::new();
-	match var {
-		Some(var) => {
-			for val in universe {
-				let finded = var.iter().find(|&&x| x == *val);
-				match finded {
-					None => {
-						res.push(*val);
-					},
-					_ => {}
-				}
-			}
-		},
+fn get_one_set_in_stack(stack: &mut Vec<Vec<i32>>) -> Vec<i32> {
+	let set_a = stack.pop();
+	match set_a {
+		Some(_) => { return set_a.unwrap(); }
 		_ => { panic!("set missing") }
 	}
-	
-	stack.push(res);
+}
+
+fn get_two_set_in_stack(stack: &mut Vec<Vec<i32>>) -> (Vec<i32>, Vec<i32>) {
+	let set_b = stack.pop();
+	let set_a = stack.pop();
+
+	match set_a {
+		Some(_) => {},
+		_ => { panic!("set missing") }
+	}
+
+	match set_b {
+		Some(_) => {}
+		_ => { panic!("set missing") }
+	}
+
+	(set_a.unwrap(), set_b.unwrap())
+}
+
+fn complement(set: Vec<i32>, universe: &Vec<i32>) -> Vec<i32> {
+	let mut res = Vec::new();
+
+	for value_u in universe {
+		let finded = set.iter().find(|&&x| x == *value_u);
+		match finded {
+			None => { res.push(*value_u); }
+			_ => {}
+		}
+	}
+
+	res
 }
 
 fn intersection(stack: &mut Vec<Vec<i32>>) {
@@ -171,7 +189,9 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 				get_set(&mut stack, chr, &sets);
 			},
 			'!' => {
-				complement(&mut stack, &universe);
+				let tmp = complement(get_one_set_in_stack(&mut stack), &universe);
+				stack.push(tmp);
+				// complement(&mut stack, &universe);
 			},
 			'&' => {
 				intersection(&mut stack);
@@ -242,19 +262,16 @@ mod tests {
 	#[test]
 	fn complement_test() {
 		let universe = vec![0, 1, 2];
-		let mut stack = vec![vec![0, 1, 2]];
-		complement(&mut stack, &universe);
-		assert_eq!(stack.pop().unwrap(), vec![]);
+		let set = vec![0, 1, 2];
+		assert_eq!(complement(set, &universe), vec![]);
 
 		let universe = vec![2, 0, 1];
-		stack.push(vec![0, 1, 2]);
-		complement(&mut stack, &universe);
-		assert_eq!(stack.pop().unwrap(), vec![]);
+		let set = vec![0, 1, 2];
+		assert_eq!(complement(set, &universe), vec![]);
 
 		let universe = vec![0, 1, 2, 3, 10];
-		stack.push(vec![0, 1, 2]);
-		complement(&mut stack, &universe);
-		assert_eq!(stack.pop().unwrap(), vec![3, 10]);
+		let set = vec![0, 1, 2];
+		assert_eq!(complement(set, &universe), vec![3, 10]);
 	}
 
 	#[test]
