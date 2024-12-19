@@ -137,42 +137,11 @@ fn union(set_a: Vec<i32>, set_b: Vec<i32>) -> Vec<i32> {
 	res
 }
 
-fn xor(stack: &mut Vec<Vec<i32>>) {
-	let var_b = stack.pop();
-	let var_a = stack.pop();
-	let mut res = Vec::new();
-
-	match var_b.as_ref() {
-		Some(value_b) => {
-			match var_a.as_ref() {
-				Some(value_a) => {
-					for value in value_a {
-						let finded = value_b.iter().find(|&&x| x == *value);
-						match finded {
-							None => {
-								res.push(*value);
-							},
-							_ => {}
-						}
-					}
-				},
-				_ => { panic!("set missing")}
-			}
-		},
-		_ => { panic!("set missing") }
-	}
-
-	for value_b in var_b.unwrap().iter() {
-		let finded = var_a.as_ref().unwrap().iter().find(|&&x| x == *value_b);
-		match finded {
-			None => {
-				res.push(*value_b);
-			},
-			_ => {}
-		}
-	}
-
-	stack.push(res);
+fn xor(set_a: Vec<i32>, set_b: Vec<i32>, universe: &Vec<i32>) -> Vec<i32> {
+	union(
+		n_intersection(set_a.clone(), complement(set_b.clone(), universe)),
+		n_intersection(complement(set_a.clone(), universe), set_b)
+	)
 }
 
 pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
@@ -203,7 +172,9 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 				stack.push(tmp);
 			},
 			'^' => {
-				xor(&mut stack);
+				let (set_a, set_b) = get_two_set_in_stack(&mut stack);
+				let tmp = xor(set_a, set_b, &universe);
+				stack.push(tmp);
 			},
 			'>' => {},
 			'=' => {},
@@ -349,21 +320,18 @@ mod tests {
 
 	#[test]
 	fn xor_tests() {
-		let mut stack = vec![vec![], vec![]];
-		xor(&mut stack);
-		assert_eq!(stack.pop().unwrap(), vec![]);
+		let universe = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+		let (set_a, set_b) = (vec![], vec![]);
+		check_sets(xor(set_a, set_b, &universe), vec![]);
 
-		let mut stack = vec![vec![0, 1, 2], vec![0, 3, 4]];
-		xor(&mut stack);
-		assert_eq!(stack.pop().unwrap(), vec![1, 2, 3, 4]);
+		let (set_a, set_b) = (vec![0, 1, 2], vec![0, 3, 4]);
+		check_sets(xor(set_a, set_b, &universe), vec![1, 2, 3, 4]);
 
-		let mut stack = vec![vec![], vec![0, 3, 4]];
-		xor(&mut stack);
-		assert_eq!(stack.pop().unwrap(), vec![0, 3, 4]);
-		
-		let mut stack = vec![vec![0, 1, 2], vec![]];
-		xor(&mut stack);
-		assert_eq!(stack.pop().unwrap(), vec![0, 1, 2]);
+		let (set_a, set_b) = (vec![], vec![0, 3, 4]);
+		check_sets(xor(set_a, set_b, &universe), vec![0, 3, 4]);
+
+		let (set_a, set_b) = (vec![0, 1, 2], vec![]);
+		check_sets(xor(set_a, set_b, &universe), vec![0, 1, 2]);
 	}
 
     #[test]
