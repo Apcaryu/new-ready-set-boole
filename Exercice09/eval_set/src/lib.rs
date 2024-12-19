@@ -123,34 +123,18 @@ fn intersection(stack: &mut Vec<Vec<i32>>) {
 	stack.push(res);
 }
 
-fn union(stack: &mut Vec<Vec<i32>>) {
-	let var_b = stack.pop();
-	let var_a = stack.pop();
-	let mut res;
+fn union(set_a: Vec<i32>, set_b: Vec<i32>) -> Vec<i32> {
+	let mut res = set_a;
 
-	match var_a {
-		Some(values) => {
-			res = values;
-		},
-		_ => { panic!("set missing") }
+	for value_b in set_b {
+		let finded = res.iter().find(|&&x| x == value_b);
+		match finded {
+			None => { res.push(value_b); },
+			_ => {}
+		}
 	}
 
-	match var_b {
-		Some(values) => {
-			for val in values {
-				let finded = res.iter().find(|&&x| x == val);
-				match finded {
-					None => {
-						res.push(val);
-					},
-					_ => {}
-				}
-			}
-		},
-		_ => { panic!("set missing") }
-	}
-
-	stack.push(res);
+	res
 }
 
 fn xor(stack: &mut Vec<Vec<i32>>) {
@@ -214,7 +198,9 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 				// intersection(&mut stack);
 			},
 			'|' => {
-				union(&mut stack);
+				let (set_a, set_b) = get_two_set_in_stack(&mut stack);
+				let tmp = union(set_a, set_b);
+				stack.push(tmp);
 			},
 			'^' => {
 				xor(&mut stack);
@@ -345,25 +331,20 @@ mod tests {
 
 	#[test]
 	fn union_test() {
-		let mut stack = vec![vec![], vec![]];
-		union(&mut stack);
-		assert_eq!(stack.pop().unwrap(), vec![]);
+		let (set_a, set_b) = (vec![], vec![]);
+		check_sets(union(set_a, set_b), vec![]);
 
-		let mut stack = vec![vec![0, 1, 2], vec![]];
-		union(&mut stack);
-		assert_eq!(stack.pop().unwrap(), vec![0, 1, 2]);
+		let (set_a, set_b) = (vec![0, 1, 2], vec![]);
+		check_sets(union(set_a, set_b), vec![0, 1, 2]);
 
-		let mut stack = vec![vec![], vec![0, 1, 2]];
-		union(&mut stack);
-		assert_eq!(stack.pop().unwrap(), vec![0 ,1, 2]);
+		let (set_a, set_b) = (vec![], vec![0, 1, 2]);
+		check_sets(union(set_a, set_b), vec![0, 1, 2]);
 
-		let mut stack = vec![vec![0, 1, 2], vec![3, 4, 5]];
-		union(&mut stack);
-		assert_eq!(stack.pop().unwrap(), vec![0, 1, 2, 3, 4, 5]);
+		let (set_a, set_b) = (vec![0, 1, 2], vec![3, 4, 5]);
+		check_sets(union(set_a, set_b), vec![0, 1, 2, 3, 4, 5]);
 
-		let mut stack = vec![vec![0, 5, 1], vec![4, 2, 3]];
-		union(&mut stack);
-		assert_eq!(stack.pop().unwrap(), vec![0, 5, 1, 4, 2, 3]);
+		let (set_a, set_b) = (vec![0, 5, 1], vec![4, 2, 3]);
+		check_sets(union(set_a, set_b), vec![0, 5, 1, 4, 2, 3]);
 	}
 
 	#[test]
